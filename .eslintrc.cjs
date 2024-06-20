@@ -10,5 +10,14 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+  },
+  overrides: [
+    {
+      files: ['tools/**/*'],
+      env: {
+        node: true,
+        browser: false,
+      },
+    },
+  ],
 }

@@ -9,9 +9,13 @@
     "preview": "vite preview",
     "test:unit": "vitest",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
+    "tool:validate-pat": "dotenv -e config/.env -- node tools/validate-pat.js"
   },
   "dependencies": {
+    "@octokit/core": "^6.1.2",
+    "axios": "^1.7.2",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
@@ -21,11 +25,13 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/test-utils": "^2.4.6",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
     "jsdom": "^24.1.0",
     "prettier": "^3.2.5",
     "vite": "^5.3.1",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "yargs": "^17.7.2"
   }
 }
