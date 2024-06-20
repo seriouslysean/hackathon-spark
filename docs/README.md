@@ -11,7 +11,9 @@
 - [Production](#compile-and-minify-for-production)
 - [Testing](#run-unit-tests-with-vitest)
 - [Linting](#lint-with-eslint)
-- [GitHub PAT Setup](#github-pat-setup)
+- [PAT Setup](#pat-setup)
+  - [GitHub](#github)
+  - [Jira](#jira)
 
 ## Recommended IDE Setup
 
@@ -51,6 +53,12 @@ npm run test:unit
 npm run lint
 ```
 
-## GitHub PAT Setup
+## PAT Setup
+
+### GitHub
 
 For setting up and validating your GitHub Personal Access Token, see [GitHub PAT Setup](./github-pat.md).
+
+### Jira
+
+For instructions on creating and validating your Jira Personal Access Token (PAT), see [Jira PAT Setup](./jira-pat.md).

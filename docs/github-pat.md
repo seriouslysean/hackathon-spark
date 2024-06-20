@@ -30,7 +30,7 @@ Use the PAT for API requests, cloning repositories, etc. Provide it when prompte
 To validate your PAT, set your environment variables in [`config/.env`](../config/.env), using [`config/.env.example`](../config/.env.example) as a guide. Then, run:
 
 ```sh
-npm run tools:validate-pat
+npm run tools:validate-github
 ```
 
 This script checks your PAT against the GitHub API using the `GITHUB_TOKEN`, `GITHUB_OWNER`, and `GITHUB_REPO` variables from your `.env` file, ensuring it has the necessary permissions, especially the `repo` scope.

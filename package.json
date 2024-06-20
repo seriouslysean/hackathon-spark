@@ -11,7 +11,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
-    "tool:validate-pat": "dotenv -e config/.env -- node tools/validate-pat.js"
+    "tool:validate-github": "dotenv -e config/.env -- node tools/validate-github.js",
+    "tool:validate-jira": "dotenv -e config/.env -- node tools/validate-jira.js"
   },
   "dependencies": {
     "@octokit/core": "^6.1.2",
