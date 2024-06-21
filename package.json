@@ -11,6 +11,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
+    "tool:fetch-jira-fix-version": "dotenv -e config/.env -- node tools/fetch-jira-fix-version.js",
+    "tool:fetch-jira-ticket": "dotenv -e config/.env -- node tools/fetch-jira-ticket.js",
     "tool:validate-github": "dotenv -e config/.env -- node tools/validate-github.js",
     "tool:validate-jira": "dotenv -e config/.env -- node tools/validate-jira.js"
   },
