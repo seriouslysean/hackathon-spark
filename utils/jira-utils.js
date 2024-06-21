@@ -70,3 +70,29 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
         throw error;
     }
 }
+
+/**
+ * Saves the provided issue data into a text file within a directory named after the fix version.
+ * Each issue's data is saved in a separate text file.
+ * @param {string} fixVersion - The Jira fix version.
+ * @param {object} issueData - The issue data to save.
+ */
+export function saveIssueData(fixVersion, issueData) {
+    const fs = require('fs');
+    const path = require('path');
+    const dirPath = path.join('./tmp', fixVersion);
+    const filePath = path.join(dirPath, `${issueData.key}.txt`);
+
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+
+    const issueDataString = Object.entries(issueData).map(([key, value]) => {
+        const indentedValue = value.split('\n').map((line, index) => {
+            return index === 0 ? line : '    ' + line;
+        }).join('\n');
+        return `${key}: ${indentedValue}`;
+    }).join('\n\n');
+
+    fs.writeFileSync(filePath, issueDataString + '\n\n');
+}

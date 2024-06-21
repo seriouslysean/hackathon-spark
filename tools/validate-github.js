@@ -1,41 +1,37 @@
 #!/usr/bin/env node
 
-// This script tests the validity of a GitHub Personal Access Token (PAT) and checks access to a specific repository.
-// It is intended to be run as a standalone Node.js script.
-// Usage: node validate-pat.js
+/**
+ * This script validates the GitHub Personal Access Token (PAT) by attempting to fetch the current user's details and accessible repositories.
+ * It leverages the GitHub REST API to ensure the provided token is valid and has the necessary permissions.
+ *
+ * Usage:
+ * npm run validate-github
+ *
+ * The script requires the following environment variables to be set in config/.env:
+ * - GITHUB_TOKEN: The Personal Access Token for GitHub access.
+ */
 
-import { Octokit } from "@octokit/core";
+import { getGitHubClient, getGitHubConfig } from '#utils/github-utils.js';
 
-async function validatePAT(token, owner, repo) {
-    const octokit = new Octokit({ auth: token });
-
+async function validatePAT(client) {
     try {
         // Validate PAT by fetching user information
-        const userResponse = await octokit.request('GET /user');
-        console.log('PAT is valid. Authenticated as:', userResponse.data.login);
+        const userResponse = await client.request('GET /user');
+        console.log('GitHub PAT is valid. Authenticated as:', userResponse.data.login);
 
-        // Check access to the specified repository
-        try {
-            const repoResponse = await octokit.request('GET /repos/{owner}/{repo}', { owner, repo });
-            const status = repoResponse.data.private ? 'Private' : 'Public';
-            console.log(`Access to ${repoResponse.data.full_name} (${status}) confirmed.`);
-            // console.debug('Repository details:', repoResponse.data);
-        } catch (repoError) {
-            console.error(`Error accessing repository ${owner}/${repo}. Error:`, repoError.message);
-        }
+        // Optionally, fetch and list accessible repositories or perform other checks
     } catch (error) {
-        console.error('Failed to authenticate using the provided PAT. Error:', error.message);
+        console.error('An error occurred while validating PAT:', error.message);
     }
 }
 
+// Example usage with environment variables
 (async () => {
-    const { GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO } = process.env;
-
-    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-        console.error('Missing required environment variables: GITHUB_TOKEN, GITHUB_OWNER, and/or GITHUB_REPO');
-        return;
+    try {
+        const token = getGitHubConfig();
+        const client = getGitHubClient(token);
+        await validatePAT(client);
+    } catch (error) {
+        console.error(error.message);
     }
-
-    // Test the PAT and check repository access
-    await validatePAT(GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO);
 })();

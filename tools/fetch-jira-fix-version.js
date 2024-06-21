@@ -13,11 +13,9 @@
  * - JIRA_DOMAIN: The domain of the JIRA instance.
  */
 
-import fs from 'fs';
-import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { getJiraAxiosClient, getJiraConfig, fetchTicketsByFixVersion } from '../utils/jira-utils.js';
+import { getJiraAxiosClient, getJiraConfig, fetchTicketsByFixVersion, saveIssueData } from '#utils/jira-utils.js';
 
 const argv = yargs(hideBin(process.argv))
     .option('f', {
@@ -89,24 +87,6 @@ const extractIssueData = (issue) => ({
     team: issue.fields?.customfield_18834?.value ?? 'N/A',
     labels: issue.fields?.labels?.join(', ') ?? 'No labels'
 });
-
-const saveIssueData = (fixVersion, issueData) => {
-    const dirPath = path.join('./tmp', fixVersion);
-    const filePath = path.join(dirPath, `${issueData.key}.txt`);
-
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-
-    const issueDataString = Object.entries(issueData).map(([key, value]) => {
-        const indentedValue = value.split('\n').map((line, index) => {
-            return index === 0 ? line : '    ' + line;
-        }).join('\n');
-        return `${key}: ${indentedValue}`;
-    }).join('\n\n');
-
-    fs.writeFileSync(filePath, issueDataString + '\n\n');
-};
 
 // Example usage with environment variables and command line arguments
 (async () => {

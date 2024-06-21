@@ -15,7 +15,7 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { getJiraAxiosClient, getJiraConfig, fetchTicketById } from '../utils/jira-utils.js';
+import { getJiraAxiosClient, getJiraConfig, fetchTicketById } from '#utils/jira-utils.js';
 
 const argv = yargs(hideBin(process.argv))
     .option('t', {

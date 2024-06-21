@@ -13,7 +13,7 @@
  * - JIRA_DOMAIN: The domain of the JIRA instance.
  */
 
-import { getJiraAxiosClient, getJiraConfig } from '../utils/jira-utils.js';
+import { getJiraAxiosClient, getJiraConfig } from '#utils/jira-utils.js';
 
 async function validatePAT(client) {
     try {
