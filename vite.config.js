@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./client', import.meta.url)),
+      '~components': fileURLToPath(new URL('./client/components', import.meta.url)),
     },
   },
   server: {

@@ -42,6 +42,12 @@ export async function runCopyAIWorkflow(client, prompt) {
     }
 }
 
+/**
+ * Gets instantce of a CopyAI workflow run.
+ * @param {AxiosInstance} client - Configured Axios instance.
+ * @param {string} runId - id of the workflow run instance.
+ * @returns {string} - The generated text.
+ */
 export async function getWorkflowRun(client, runId) {
     try {
         const response = await client.get(`/workflow/${process.env.COPY_AI_WORKFLOW_ID}/run/${runId}`);
@@ -76,4 +82,29 @@ export function saveWorkflow(fixVersion, ticketNumber, workflowData) {
     const filePath = join(dirPath, `${ticketNumber}--workflow.txt`);
 
     fs.writeFileSync(filePath, workflowData + '\n\n');
+}
+
+/**
+ * Polls the status of a CopyAI workflow run until it is complete.
+ * @param {AxiosInstance} client - Configured Axios instance.
+ * @param {string} runId - id of the workflow run instance.
+ * @returns {string} - The generated text.
+ */
+export async function pollWorkflowStatus(client, runId) {
+    try {
+        const response = await getWorkflowRun(client, runId);
+        const { data } = response; // Assuming 'status' is a field in the response JSON
+
+        if (data.data.status === "COMPLETE") {
+            console.log("Workflow run is complete.");
+            return response; // Or return any other data you need
+        } else {
+            console.log(`Workflow run status is '${data.data.status}', polling again in 3 seconds...`);
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for 3 seconds
+            return pollWorkflowStatus(client, runId); // Recursive call to continue polling
+        }
+    } catch (error) {
+        console.error("Error while polling workflow status:", error);
+        throw error; // Handle or rethrow the error as needed
+    }
 }
