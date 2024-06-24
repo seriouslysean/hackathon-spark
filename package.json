@@ -1,26 +1,6 @@
 {
   "name": "hackathon-spark",
   "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "imports": {
-    "#utils/*": "./utils/*"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test:unit": "vitest",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier --write src/",
-    "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
-    "tool:fetch-jira-fix-version": "dotenv -e config/.env -- node tools/fetch-jira-fix-version.js",
-    "tool:fetch-jira-fix-versions": "dotenv -e config/.env -- node tools/fetch-jira-fix-versions.js",
-    "tool:fetch-jira-ticket": "dotenv -e config/.env -- node tools/fetch-jira-ticket.js",
-    "tool:validate-github": "dotenv -e config/.env -- node tools/validate-github.js",
-    "tool:validate-jira": "dotenv -e config/.env -- node tools/validate-jira.js",
-    "start:server": "dotenv -e config/.env -- nodemon api/server.js"
-  },
   "dependencies": {
     "@octokit/core": "^6.1.2",
     "axios": "^1.7.2",
@@ -46,8 +26,8 @@
     "yargs": "^17.7.2"
   },
   "engines": {
-    "node": "18.x",
-    "npm": "9.x"
+    "node": ">=18.x",
+    "npm": ">=9.x"
   },
   "imports": {
     "#utils/*": "./utils/*"
@@ -60,6 +40,7 @@
     "format": "prettier --write api/ client/",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "preview": "vite preview",
+    "start:server": "dotenv -e config/.env -- nodemon api/server.js",
     "test:unit": "vitest",
     "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
     "tool:fetch-jira-fix-version": "dotenv -e config/.env -- node tools/fetch-jira-fix-version.js",
