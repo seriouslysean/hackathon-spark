@@ -17,13 +17,10 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['src/**/*'],
+      files: ['client/**/*'],
       env: {
         node: false,
         browser: true,
-      },
-      parserOptions: {
-        sourceType: 'script',
       },
       'extends': [
         'plugin:vue/vue3-essential',

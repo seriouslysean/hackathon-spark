@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "test:unit": "vitest",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier --write src/",
+    "format": "prettier --write api/ client/",
     "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
     "tool:fetch-jira-fix-version": "dotenv -e config/.env -- node tools/fetch-jira-fix-version.js",
     "tool:fetch-jira-fix-versions": "dotenv -e config/.env -- node tools/fetch-jira-fix-versions.js",
