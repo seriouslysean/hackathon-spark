@@ -28,6 +28,6 @@ a,
   }
 
   #app {
-    /* padding: 0 2rem; */
+    min-width: 800px;
   }
 }
