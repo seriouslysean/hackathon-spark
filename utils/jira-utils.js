@@ -1,13 +1,20 @@
 import axios from 'axios';
 import fs from 'fs';
-import path from 'path';
+import { join } from 'path';
 
 /**
  * Retrieves and validates the necessary Jira configuration from environment variables.
  * @returns {object} - Returns an object with the Jira configuration if valid, otherwise throws an error.
  */
 export function getJiraConfig() {
-    const requiredEnvVars = ['JIRA_EMAIL', 'JIRA_TOKEN', 'JIRA_DOMAIN'];
+    // Include PROJECT_KEY and FILTER_PREFIX in the list of required environment variables
+    const requiredEnvVars = [
+        'JIRA_EMAIL',
+        'JIRA_TOKEN',
+        'JIRA_DOMAIN',
+        'JIRA_PROJECT_KEY',
+        'JIRA_VERSION_FILTER_PREFIX',
+    ];
     const missingVars = requiredEnvVars.filter(v => !process.env[v]);
 
     if (missingVars.length > 0) {
@@ -17,7 +24,9 @@ export function getJiraConfig() {
     return {
         email: process.env.JIRA_EMAIL,
         token: process.env.JIRA_TOKEN,
-        domain: process.env.JIRA_DOMAIN
+        domain: process.env.JIRA_DOMAIN,
+        projectKey: process.env.JIRA_PROJECT_KEY,
+        versionFilterPrefix: process.env.JIRA_VERSION_FILTER_PREFIX,
     };
 }
 
@@ -38,6 +47,59 @@ export function getJiraAxiosClient(email, token, domain) {
             'Accept': 'application/json'
         }
     });
+}
+
+/**
+ * Fetches all versions from JIRA, optionally filters them to only include versions starting with a specified prefix,
+ * and orders them from newest to oldest.
+ * @param {AxiosInstance} client - Configured Axios instance.
+ * @param {string} projectKey - The JIRA project key.
+ * @param {string} [filterPrefix] - Optional prefix to filter versions by.
+ * @returns {Array} - Filtered (if filterPrefix is provided) and sorted list of JIRA versions.
+ */
+export async function fetchJiraVersions(client, projectKey, filterPrefix) {
+    try {
+        const queryParamsObj = {
+            orderBy: '+name', // Keep orderBy to sort on the server-side if possible
+            expand: 'issuesstatus',
+        };
+
+        // Construct the query string without maxResults and startAt
+        const queryString = Object.entries(queryParamsObj)
+            .filter(([, value]) => value !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&');
+
+        const url = `/project/${projectKey}/versions?${queryString}`;
+        console.log(`Requesting JIRA versions with URL: ${url}`);
+
+        const response = await client.get(url);
+        console.log(`Response count from JIRA:`, response.data.length);
+
+        // Manually filter, sort, and trim the results
+        const semverRegex = /(\d+)\.(\d+)\.(\d+)/; // Regex to extract major, minor, patch
+
+        const filteredSortedAndTrimmed = response.data
+            .filter(version => version.name.startsWith(filterPrefix) && version.releaseDate)
+            .sort((a, b) => {
+                const dateComparison = new Date(b.releaseDate) - new Date(a.releaseDate);
+                if (dateComparison !== 0) {
+                    return dateComparison;
+                } else {
+                    // Extract semver parts
+                    const [, aMajor, aMinor, aPatch] = a.name.match(semverRegex) || [];
+                    const [, bMajor, bMinor, bPatch] = b.name.match(semverRegex) || [];
+                    // Compare major, minor, then patch versions
+                    return bMajor - aMajor || bMinor - aMinor || bPatch - aPatch;
+                }
+            })
+            .slice(0, 10);
+
+        return filteredSortedAndTrimmed;
+    } catch (error) {
+        console.error('An error occurred while fetching JIRA versions:', error);
+        throw error;
+    }
 }
 
 /**
@@ -80,8 +142,8 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
  * @param {object} issueData - The issue data to save.
  */
 export function saveIssueData(fixVersion, issueData) {
-    const dirPath = path.join('./tmp', fixVersion);
-    const filePath = path.join(dirPath, `${issueData.key}.txt`);
+    const dirPath = join('./tmp', fixVersion);
+    const filePath = join(dirPath, `${issueData.key}.txt`);
 
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
