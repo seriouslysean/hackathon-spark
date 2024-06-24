@@ -1,4 +1,6 @@
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Retrieves and validates the necessary Jira configuration from environment variables.
@@ -78,8 +80,6 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
  * @param {object} issueData - The issue data to save.
  */
 export function saveIssueData(fixVersion, issueData) {
-    const fs = require('fs');
-    const path = require('path');
     const dirPath = path.join('./tmp', fixVersion);
     const filePath = path.join(dirPath, `${issueData.key}.txt`);
 
