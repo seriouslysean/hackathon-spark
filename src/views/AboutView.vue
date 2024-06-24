@@ -89,10 +89,17 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;
+    margin-bottom: 20px;
 }
 .header-section {
     padding: 20px;
     border: 1px dashed #CCC;
+}
+
+.team {
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
 }
 
 h3 {
