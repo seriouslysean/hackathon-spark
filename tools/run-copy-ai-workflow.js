@@ -1,6 +1,6 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { getCopyAIClient, readIssueData, runCopyAIWorkflow, getWorkflowRun } from '#utils/copy-ai-utils.js';
+import { getCopyAIClient, readIssueData, runCopyAIWorkflow, getWorkflowRun, saveWorkflow } from '#utils/copy-ai-utils.js';
 
 async function pollWorkflowStatus(client, runId) {
     try {
@@ -50,8 +50,9 @@ const argv = yargs(hideBin(process.argv))
         console.log(`Started workflow run with ID: ${runId}`);
 
         const statusRes = await pollWorkflowStatus(client, runId);
-        console.log(statusRes.data);
-        // console.log(response.data.data);
+
+        saveWorkflow(JIRA_FIX_VERSION, JIRA_TICKET_ID, JSON.stringify(JSON.parse(statusRes?.data?.data?.output?.final_output), null, 2));
+        console.log('Workflow output saved successfully!');
     } catch (error) {
         console.error(error.message);
     }

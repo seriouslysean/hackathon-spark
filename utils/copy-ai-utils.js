@@ -65,3 +65,15 @@ export function readIssueData(fixVersion, fileName) {
     const fileContents = fs.readFileSync(filePath, 'utf8');
     return fileContents;
 }
+
+/**
+ * Saves provided workflow data to a file in the tmp directory.
+ * @param {string} fixVersion - The Jira fix version.
+ * @param {object} issueData - The issue data to save.
+ */
+export function saveWorkflow(fixVersion, ticketNumber, workflowData) {
+    const dirPath = join('./tmp', fixVersion);
+    const filePath = join(dirPath, `${ticketNumber}--workflow.txt`);
+
+    fs.writeFileSync(filePath, workflowData + '\n\n');
+}
