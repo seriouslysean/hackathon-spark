@@ -27,7 +27,7 @@ export function getCopyAIClient() {
  */
 export async function runCopyAIWorkflow(client, prompt) {
     try {
-        const response = await client.post('/workflow/WCFG-fbb4598f-562a-4509-9584-7555abb5188c/run', {
+        const response = await client.post(`/workflow/${process.env.COPY_AI_WORKFLOW_ID}/run`, {
             startVariables: {
                 jira_blob: prompt,
             },
@@ -44,7 +44,7 @@ export async function runCopyAIWorkflow(client, prompt) {
 
 export async function getWorkflowRun(client, runId) {
     try {
-        const response = await client.get(`/workflow/WCFG-fbb4598f-562a-4509-9584-7555abb5188c/run/${runId}`);
+        const response = await client.get(`/workflow/${process.env.COPY_AI_WORKFLOW_ID}/run/${runId}`);
         return response;
     } catch (error) {
         console.error('An error occurred while running CopyAI workflow', error.message);
