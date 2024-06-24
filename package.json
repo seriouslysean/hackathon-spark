@@ -18,7 +18,8 @@
     "tool:fetch-jira-fix-versions": "dotenv -e config/.env -- node tools/fetch-jira-fix-versions.js",
     "tool:fetch-jira-ticket": "dotenv -e config/.env -- node tools/fetch-jira-ticket.js",
     "tool:validate-github": "dotenv -e config/.env -- node tools/validate-github.js",
-    "tool:validate-jira": "dotenv -e config/.env -- node tools/validate-jira.js"
+    "tool:validate-jira": "dotenv -e config/.env -- node tools/validate-jira.js",
+    "tool:run-copy-ai-workflow": "dotenv -e config/.env -- node tools/run-copy-ai-workflow.js"
   },
   "dependencies": {
     "@octokit/core": "^6.1.2",
