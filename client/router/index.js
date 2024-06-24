@@ -1,20 +1,25 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+// index.js
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '~views/HomeView.vue';
+
+export const ROUTE_HOME = 'home';
+export const ROUTE_RELEASE = 'release';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: ROUTE_HOME,
       component: HomeView
     },
     {
-      path: '/release/:id',
-      name: 'release',
-      component: () => import('../views/ReleaseView.vue')
+      path: '/release',
+      name: ROUTE_RELEASE,
+      component: () => import('~views/ReleaseView.vue'),
+      props: true,
     }
   ]
-})
+});
 
-export default router
+export default router;

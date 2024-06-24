@@ -2,7 +2,9 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./client/*"],
-      "~components/*": ["./client/components/*"]
+      "~components/*": ["./client/components/*"],
+      "~stores/*": ["./client/stores/*"],
+      "~views/*": ["./client/views/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

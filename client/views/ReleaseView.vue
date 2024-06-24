@@ -1,84 +1,22 @@
+<script setup>
+import { computed } from 'vue';
+import { useReleaseStore } from '~stores/release';
+
+import ReleaseEmail from '~components/ReleaseEmail.vue';
+
+const releaseStore = useReleaseStore();
+
+const selectedRelease = computed(() => releaseStore.selectedRelease);
+</script>
+
 <template>
-  <div class="headers">
-    <div class="header-section">
-      <h3>Dates</h3>
-      <h4>Web</h4>
-      <p>Nov 1, 2022</p>
-      <h4>Mobile</h4>
-      <p>Nov 2, 2022</p>
+  <div class="release">
+    <div v-if="!selectedRelease">
+      <p>No release provided.</p>
     </div>
-
-    <div class="header-section">
-      <h3>Web Versions</h3>
-      <p><a href="#">Jira Tickets</a></p>
-
-      <ul>
-        <li>SlipStream: 3.77</li>
-        <li>MonoWeb: 2.109</li>
-      </ul>
+    <div v-else>
+      <ReleaseEmail :release="selectedRelease" />
     </div>
-  </div>
-
-  <div class="team">
-    <h4>Expansion</h4>
-
-    <h5>Web</h5>
-
-    <ul>
-      <li>Added</li>
-      <ul>
-        <li>None</li>
-      </ul>
-      <li>Fixed</li>
-      <ul>
-        <li>Content not displaying on tablet</li>
-      </ul>
-    </ul>
-
-    <h5>Mobile</h5>
-
-    <ul>
-      <li>Added</li>
-      <ul>
-        <li>None</li>
-      </ul>
-      <li>Fixed</li>
-      <ul>
-        <li>None</li>
-      </ul>
-    </ul>
-  </div>
-
-  <div class="team">
-    <h4>Explore and Evaluation</h4>
-
-    <h5>Web</h5>
-
-    <ul>
-      <li>Added</li>
-      <ul>
-        <li>Quick add bundling section on PDP</li>
-      </ul>
-      <li>Fixed</li>
-      <ul>
-        <li>Country Param being added as a refinement</li>
-        <li>Jump links are broken</li>
-      </ul>
-    </ul>
-
-    <h5>Mobile</h5>
-
-    <ul>
-      <li>Added</li>
-      <ul>
-        <li>Quick Add bundling section on PDP</li>
-      </ul>
-      <li>Fixed</li>
-      <ul>
-        <li>FP Classes navigates user to ShopTab prior to showing content</li>
-        <li>1 Android crasher resolved</li>
-      </ul>
-    </ul>
   </div>
 </template>
 

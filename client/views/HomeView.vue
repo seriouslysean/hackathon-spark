@@ -1,51 +1,73 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue';
-import { useRouter } from 'vue-router'; // Import useRouter
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { ROUTE_RELEASE } from '@/router';
+import { useReleaseStore, FETCH_RELEASE_VERSIONS } from '~stores/release';
 
-const router = useRouter(); // Use useRouter to access the router instance
-const selectedVersion = ref('');
-const releaseVersionsData = ref([]);
+const router = useRouter();
+const releaseStore = useReleaseStore();
+const hasError = ref(false);
 
-// Fetch release versions on component mount
+// Fetch release versions on component mount, using the store
 onMounted(async () => {
   try {
-    const response = await fetch('/api/jira/versions');
-    if (!response.ok) throw new Error('Failed to fetch');
-    const data = await response.json();
-    releaseVersionsData.value = data;
+    await releaseStore[FETCH_RELEASE_VERSIONS]();
   } catch (error) {
     console.error('Error fetching data:', error);
+    hasError.value = true;
   }
 });
 
-// Computed property to format release versions for the select options
-const releaseVersions = computed(() => {
-  return releaseVersionsData.value.map(version => ({
-    name: version.name,
-    value: version.name
-  }));
-});
-
-// Function to handle form submission using Vue Router
-const submitForm = () => {
-  router.push({ path: `/release/${selectedVersion.value}` });
+const onSubmit = () => {
+  router.push({ name: ROUTE_RELEASE });
 };
 </script>
 
 <template>
     <div class="home">
-        <!-- Wrap the select and button in a form tag -->
-        <form @submit.prevent="submitForm">
-            <select v-model="selectedVersion">
-                <!-- Option for "Select Version" -->
+        <div v-if="hasError">
+            <p>Failed to load release versions. Please try again later.</p>
+        </div>
+        <form class="form-container" @submit.prevent="onSubmit">
+            <select class="select-version" v-model="releaseStore.selectedRelease">
                 <option value="">Select Version</option>
-                <!-- Options for versions -->
-                <option v-for="version in releaseVersions" :key="version.value" :value="version.value">
+                <option v-for="version in releaseStore.releaseVersions" :key="version.name" :value="version.name">
                     {{ version.name }}
                 </option>
             </select>
-
-            <button type="submit">Submit</button>
+            <button class="submit-btn" type="submit">Submit</button>
         </form>
     </div>
 </template>
+
+<style scoped>
+.form-container {
+  display: flex;
+  align-items: center;
+  gap: 1.25em;
+}
+
+.select-version, .submit-btn {
+  padding: 0.5em 1em;
+  font-size: 1em;
+  border-radius: 5px;
+  height: 2.5em;
+}
+
+.select-version {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+}
+
+.submit-btn {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}
+</style>
