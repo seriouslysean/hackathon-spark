@@ -4,10 +4,9 @@ import { join } from 'path';
 
 /**
  * Retrieves and validates the necessary Jira configuration from environment variables.
- * @returns {object} - Returns an object with the Jira configuration if valid, otherwise throws an error.
+ * @returns {object} Returns an object with the Jira configuration if valid, otherwise throws an error.
  */
 export function getJiraConfig() {
-    // Include PROJECT_KEY and FILTER_PREFIX in the list of required environment variables
     const requiredEnvVars = [
         'JIRA_EMAIL',
         'JIRA_TOKEN',
@@ -32,10 +31,10 @@ export function getJiraConfig() {
 
 /**
  * Creates an Axios instance with the base URL and headers set for Jira API requests.
- * @param {string} email - Jira email.
- * @param {string} token - Jira API token.
- * @param {string} domain - Jira domain.
- * @returns {AxiosInstance} - Configured Axios instance.
+ * @param {string} email Jira email.
+ * @param {string} token Jira API token.
+ * @param {string} domain Jira domain.
+ * @returns {AxiosInstance} Configured Axios instance.
  */
 export function getJiraAxiosClient(email, token, domain) {
     const authHeader = `Basic ${Buffer.from(`${email}:${token}`).toString('base64')}`;
@@ -52,19 +51,18 @@ export function getJiraAxiosClient(email, token, domain) {
 /**
  * Fetches all versions from JIRA, optionally filters them to only include versions starting with a specified prefix,
  * and orders them from newest to oldest.
- * @param {AxiosInstance} client - Configured Axios instance.
- * @param {string} projectKey - The JIRA project key.
- * @param {string} [filterPrefix] - Optional prefix to filter versions by.
- * @returns {Array} - Filtered (if filterPrefix is provided) and sorted list of JIRA versions.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} projectKey The JIRA project key.
+ * @param {string} [filterPrefix] Optional prefix to filter versions by.
+ * @returns {Array} Filtered (if filterPrefix is provided) and sorted list of JIRA versions.
  */
 export async function fetchJiraVersions(client, projectKey, filterPrefix) {
     try {
         const queryParamsObj = {
-            orderBy: '+name', // Keep orderBy to sort on the server-side if possible
+            orderBy: '+name',
             expand: 'issuesstatus',
         };
 
-        // Construct the query string without maxResults and startAt
         const queryString = Object.entries(queryParamsObj)
             .filter(([, value]) => value !== undefined)
             .map(([key, value]) => `${key}=${value}`)
@@ -76,8 +74,7 @@ export async function fetchJiraVersions(client, projectKey, filterPrefix) {
         const response = await client.get(url);
         console.log(`Response count from JIRA:`, response.data.length);
 
-        // Manually filter, sort, and trim the results
-        const semverRegex = /(\d+)\.(\d+)\.(\d+)/; // Regex to extract major, minor, patch
+        const semverRegex = /(\d+)\.(\d+)\.(\d+)/;
 
         const filteredSortedAndTrimmed = response.data
             .filter(version => version.name.startsWith(filterPrefix) && version.releaseDate)
@@ -86,10 +83,8 @@ export async function fetchJiraVersions(client, projectKey, filterPrefix) {
                 if (dateComparison !== 0) {
                     return dateComparison;
                 } else {
-                    // Extract semver parts
                     const [, aMajor, aMinor, aPatch] = a.name.match(semverRegex) || [];
                     const [, bMajor, bMinor, bPatch] = b.name.match(semverRegex) || [];
-                    // Compare major, minor, then patch versions
                     return bMajor - aMajor || bMinor - aMinor || bPatch - aPatch;
                 }
             })
@@ -104,9 +99,9 @@ export async function fetchJiraVersions(client, projectKey, filterPrefix) {
 
 /**
  * Fetches a Jira ticket by its ID.
- * @param {AxiosInstance} client - Configured Axios instance.
- * @param {string} ticketId - The Jira ticket ID.
- * @returns {object} - The Jira ticket details.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} ticketId The Jira ticket ID.
+ * @returns {object} The Jira ticket details.
  */
 export async function fetchTicketById(client, ticketId) {
     try {
@@ -120,9 +115,9 @@ export async function fetchTicketById(client, ticketId) {
 
 /**
  * Fetches Jira tickets by fix version.
- * @param {AxiosInstance} client - Configured Axios instance.
- * @param {string} fixVersion - The Jira fix version.
- * @returns {Array} - List of Jira tickets.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} fixVersion The Jira fix version.
+ * @returns {Array} List of Jira tickets.
  */
 export async function fetchTicketsByFixVersion(client, fixVersion) {
     try {
@@ -138,13 +133,13 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
 /**
  * Saves the provided issue data into a text file within a directory named after the fix version.
  * Each issue's data is saved in a separate text file.
- * @param {string} fixVersion - The Jira fix version.
- * @param {object} issueData - The issue data to save.
+ * @param {string} fixVersion The Jira fix version.
+ * @param {object} issueData The issue data to save.
  */
 export function saveIssueData(fixVersion, issueData) {
     const dirPath = join('./tmp', fixVersion);
     const filePath = join(dirPath, `${issueData.ticketNumber}.json`);
-    
+
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
     }
@@ -153,7 +148,12 @@ export function saveIssueData(fixVersion, issueData) {
     fs.writeFileSync(filePath, jsonIssueData + '\n\n');
 }
 
-const convertDescriptionToText = (description) => {
+/**
+ * Converts Jira issue description to plain text.
+ * @param {object} description Jira issue description object.
+ * @returns {string} Plain text description.
+ */
+export const convertDescriptionToText = (description) => {
     if (!description || !description.content) return '';
 
     const extractText = (content) => content.reduce((acc, node) => {
@@ -164,11 +164,11 @@ const convertDescriptionToText = (description) => {
             if (item.marks) {
                 item.marks.forEach(mark => {
                     if (mark.type === 'strong') {
-                        text = `**${text}**`;
+                        text = `**${text.trim()}**`;
                     }
                 });
             }
-            return text;
+            return text.trim();
         };
 
         let prefix = '';
@@ -177,13 +177,19 @@ const convertDescriptionToText = (description) => {
             prefix = '#'.repeat(level) + ' ';
         }
 
-        const nodeText = node.content.map(processNodeText).join(' ');
-        return acc + prefix + nodeText.trim() + '\n';
+        // Join node texts carefully, ensuring no extra spaces are introduced
+        const nodeText = node.content.map(processNodeText).filter(text => text.length > 0).join(' ');
+        return acc + prefix + nodeText + '\n'; // No need to trim here as spaces are now managed
     }, '');
 
     return extractText(description.content).trim();
 };
 
+/**
+ * Extracts relevant issue data from a Jira issue object.
+ * @param {object} issue Jira issue object.
+ * @returns {object} Extracted issue data.
+ */
 const extractIssueData = (issue) => ({
     ticketNumber: issue.key,
     epic: issue.fields?.parent?.key ?? 'N/A',
@@ -201,6 +207,11 @@ const extractIssueData = (issue) => ({
     labels: issue.fields?.labels?.join(', ') ?? 'No labels'
 });
 
+/**
+ * Fetches tickets by fix version and saves their data to files.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} fixVersion The Jira fix version.
+ */
 export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
     try {
         const FIX_VERSION = fixVersion;
@@ -224,10 +235,19 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
     }
 }
 
+/**
+ * Retrieves team names from the environment configuration.
+ * @returns {Array<string>} List of team names.
+ */
 function getTeamNamesFromConfig() {
     return process.env.JIRA_TEAM_NAMES?.split(',') || [];
 }
 
+/**
+ * Sorts tickets by teams based on the team names from the environment configuration.
+ * @param {Array<object>} tickets List of tickets to sort.
+ * @returns {Array<object>} Tickets sorted by teams.
+ */
 export function sortTicketsByTeams(tickets) {
     const engineeringTeams = getTeamNamesFromConfig();
     const sortedTickets = [];

@@ -1,17 +1,18 @@
-/* eslint-env node */
-require('@rushstack/eslint-patch/modern-module-resolution')
+require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
   root: true,
   env: {
     node: true,
     browser: false,
+    es6: true,
   },
-  'extends': [
+  extends: [
     'eslint:recommended',
-    '@vue/eslint-config-prettier/skip-formatting'
   ],
   parserOptions: {
+    parser: '@babel/eslint-parser',
+    requireConfigFile: false,
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
@@ -22,11 +23,11 @@ module.exports = {
         node: false,
         browser: true,
       },
-      'extends': [
+      extends: [
         'plugin:vue/vue3-essential',
         'eslint:recommended',
         '@vue/eslint-config-prettier/skip-formatting'
       ],
     },
   ],
-}
+};

@@ -3,8 +3,8 @@ import fs from 'fs';
 import { join } from 'path';
 
 /**
- * Creates an Axios instance with the base URL and headers set for CopyAI requests.
- * @returns {AxiosInstance} - Configured Axios instance.
+ * Creates an Axios instance for CopyAI requests.
+ * @returns {AxiosInstance} Configured Axios instance.
  */
 export function getCopyAIClient() {
     const copyAIToken = process.env.COPY_AI_TOKEN;
@@ -20,10 +20,10 @@ export function getCopyAIClient() {
 }
 
 /**
- * Starts a run of a CopyAI workflow with a given prompt as input.
- * @param {AxiosInstance} client - Configured Axios instance.
- * @param {string} prompt - The prompt to generate text from.
- * @returns {string} - The generated text.
+ * Starts a CopyAI workflow with a given prompt.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} prompt The prompt to generate text from.
+ * @returns {string} The generated text.
  */
 export async function runCopyAIWorkflow(client, prompt) {
     try {
@@ -43,10 +43,10 @@ export async function runCopyAIWorkflow(client, prompt) {
 }
 
 /**
- * Gets instantce of a CopyAI workflow run.
- * @param {AxiosInstance} client - Configured Axios instance.
- * @param {string} runId - id of the workflow run instance.
- * @returns {string} - The generated text.
+ * Gets instance of a CopyAI workflow run.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} runId ID of the workflow run instance.
+ * @returns {string} The generated text.
  */
 export async function getWorkflowRun(client, runId) {
     try {
@@ -60,8 +60,7 @@ export async function getWorkflowRun(client, runId) {
 
 /**
  * Reads the contents of a specified file and returns it as a string.
- * @param {string} fixVersion - The directory path where the file is located.
- * @param {string} fileName - The name of the file to read.
+ * @param {string} filePath The path of the file to read.
  * @returns {string} The contents of the file as a string.
  */
 export function readIssueData(filePath) {
@@ -71,12 +70,12 @@ export function readIssueData(filePath) {
 }
 
 /**
- * Saves provided workflow data to a file in the tmp directory.
- * @param {string} fixVersion - The Jira fix version.
- * @param {object} issueData - The issue data to save.
+ * Saves provided workflow data to a file.
+ * @param {string} fixVersion The Jira fix version.
+ * @param {string} ticketNumber The ticket number.
+ * @param {object} workflowData The issue data to save.
  */
 export function saveWorkflow(fixVersion, ticketNumber, workflowData) {
-    
     const dirPath = join('./tmp/workflows', fixVersion);
     const filePath = join(dirPath, `${ticketNumber}--workflow.json`);
     if (!fs.existsSync(dirPath)) {
@@ -88,36 +87,33 @@ export function saveWorkflow(fixVersion, ticketNumber, workflowData) {
 
 /**
  * Polls the status of a CopyAI workflow run until it is complete.
- * @param {AxiosInstance} client - Configured Axios instance.
- * @param {string} runId - id of the workflow run instance.
- * @returns {string} - The generated text.
+ * @param {AxiosInstance} client Configured Axios instance.
+ * @param {string} runId ID of the workflow run instance.
+ * @returns {string} The generated text.
  */
 export async function pollWorkflowStatus(client, runId) {
     try {
         const response = await getWorkflowRun(client, runId);
-        const { data } = response; // Assuming 'status' is a field in the response JSON
+        const { data } = response;
 
         if (data.data.status === "COMPLETE") {
             console.log("Workflow run is complete.");
-            return response; // Or return any other data you need
+            return response;
         } else {
             console.log(`Workflow run status is '${data.data.status}', polling again in 3 seconds...`);
-            await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for 3 seconds
-            return pollWorkflowStatus(client, runId); // Recursive call to continue polling
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            return pollWorkflowStatus(client, runId);
         }
     } catch (error) {
         console.error("Error while polling workflow status:", error);
-        throw error; // Handle or rethrow the error as needed
+        throw error;
     }
 }
 
 /**
- * Reads the contents of all files in a specified directory and returns an array of their contents.
- * Each entry in the array corresponds to the content of one file.
- * 
- * @param {string} fixVersion - The version of the fix, used to construct the directory path.
- * @returns {string[]} An array containing the contents of each file in the directory.
- * @throws {Error} Throws an error if reading the directory or any file within it fails.
+ * Reads the contents of all files in a specified directory.
+ * @param {string} fixVersion The version of the fix, used to construct the directory path.
+ * @returns {string[]} An array containing the contents of each file.
  */
 export function readFileContents(fixVersion) {
     const directoryPath = join('./tmp', fixVersion);
@@ -134,22 +130,29 @@ export function readFileContents(fixVersion) {
         return contentsArray;
     } catch (error) {
         console.error('Error reading files:', error);
-        throw error; // Rethrow or handle as needed
+        throw error;
     }
 }
 
+/**
+ * Retrieves or generates a CopyAI summary for a given prompt.
+ * @param {string} prompt The prompt for the CopyAI workflow.
+ * @param {string} ticketNumber The ticket number.
+ * @param {string} fixVersion The fix version.
+ * @returns {Promise<string>} The workflow summary.
+ */
 export async function getCopyAISummary(prompt, ticketNumber, fixVersion) {
     try {
         const directoryPath = join('./tmp/workflows', fixVersion);
         const filePath = join(directoryPath, `${ticketNumber}--workflow.json`);
-        
+
         if (fs.existsSync(filePath)) {
             console.log(`Workflow file already exist for ${ticketNumber}`);
             return readIssueData(filePath);
         }
 
         const client = getCopyAIClient();
-        
+
         if (!prompt) {
             throw new Error('Prompt not found in file.');
         }
@@ -166,4 +169,3 @@ export async function getCopyAISummary(prompt, ticketNumber, fixVersion) {
         console.error(error.message);
     }
 }
-

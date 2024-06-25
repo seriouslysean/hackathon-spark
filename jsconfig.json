@@ -4,6 +4,7 @@
       "@/*": ["./client/*"],
       "~components/*": ["./client/components/*"],
       "~stores/*": ["./client/stores/*"],
+      "~utils/*": ["./client/utils/*"],
       "~views/*": ["./client/views/*"]
     }
   },
