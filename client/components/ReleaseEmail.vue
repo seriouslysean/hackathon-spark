@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useReleaseStore, GENERATE_RELEASE_NOTES } from '~stores/release'
 
 const releaseStore = useReleaseStore()
