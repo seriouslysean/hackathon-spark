@@ -143,7 +143,7 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
  */
 export function saveIssueData(fixVersion, issueData) {
     const dirPath = join('./tmp', fixVersion);
-    const filePath = join(dirPath, `${issueData.key}.txt`);
+    const filePath = join(dirPath, `${issueData.ticketNumber}.txt`);
 
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
@@ -157,4 +157,74 @@ export function saveIssueData(fixVersion, issueData) {
     }).join('\n\n');
 
     fs.writeFileSync(filePath, issueDataString + '\n\n');
+}
+
+const convertDescriptionToText = (description) => {
+    if (!description || !description.content) return '';
+
+    const extractText = (content) => content.reduce((acc, node) => {
+        if (!node.content) return acc;
+
+        const processNodeText = (item) => {
+            let text = item.text || '';
+            if (item.marks) {
+                item.marks.forEach(mark => {
+                    if (mark.type === 'strong') {
+                        text = `**${text}**`;
+                    }
+                });
+            }
+            return text;
+        };
+
+        let prefix = '';
+        if (node.type === 'heading') {
+            const level = node.attrs.level;
+            prefix = '#'.repeat(level) + ' ';
+        }
+
+        const nodeText = node.content.map(processNodeText).join(' ');
+        return acc + prefix + nodeText.trim() + '\n';
+    }, '');
+
+    return extractText(description.content).trim();
+};
+
+const extractIssueData = (issue) => ({
+    ticketNumber: issue.key,
+    epic: issue.fields?.parent?.key ?? 'N/A',
+    resolution: issue.fields?.resolution?.name ?? 'N/A',
+    // issuelinks: convertIssueLinksToText(issue.fields?.issuelinks) ?? 0,
+    // issuetype: issue.fields?.issuetype?.name ?? 'N/A',
+    brand: issue.fields?.customfield_13301?.value ?? 'N/A',
+    resolutiondate: issue.fields?.resolutiondate ?? 'N/A',
+    summary: issue.fields?.summary ?? 'No summary',
+    description: convertDescriptionToText(issue.fields?.description) ?? 'N/A',
+    fixVersionName: issue.fields?.fixVersions?.map(fv => fv.name).join(', ') ?? 'N/A',
+    fixVersionReleaseDate: issue.fields?.fixVersions?.map(fv => fv.releaseDate).join(', ') ?? 'N/A',
+    // priority: issue.fields?.priority?.name ?? 'N/A',
+    team: issue.fields?.customfield_18834?.value ?? 'N/A',
+    labels: issue.fields?.labels?.join(', ') ?? 'No labels'
+});
+
+export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
+    try {
+        const FIX_VERSION = fixVersion;
+        const dirPath = join('./tmp', fixVersion);
+        const files = fs.readdirSync(dirPath);
+        if (files.length) {
+            console.log(`Files already exist for ${fixVersion}`);
+            return;
+        }
+        
+        const issues = await fetchTicketsByFixVersion(client, FIX_VERSION);
+
+        issues.forEach(issue => {
+            const issueData = extractIssueData(issue);
+            saveIssueData(FIX_VERSION, issueData);
+            console.log(`Saved ${issue.key}`);
+        });
+    } catch (error) {
+        console.error(error.message);
+    }
 }

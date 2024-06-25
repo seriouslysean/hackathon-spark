@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ROUTE_RELEASE } from '@/router';
-import { useReleaseStore, FETCH_RELEASE_VERSIONS } from '~stores/release';
+import { useReleaseStore, FETCH_RELEASE_VERSIONS, GENERATE_RELEASE_NOTES } from '~stores/release';
 
 const router = useRouter();
 const releaseStore = useReleaseStore();
@@ -20,6 +20,20 @@ onMounted(async () => {
 
 const onSubmit = () => {
   router.push({ name: ROUTE_RELEASE });
+};
+
+const generateReleaseNotes = async () => {
+  try {
+    if (!releaseStore.selectedRelease) {
+      console.log('Please select a release version');
+      this.hasError = true;
+      return;
+    }
+    await releaseStore[GENERATE_RELEASE_NOTES]();
+  } catch (error) {
+    console.error('Error generating release notes', error);
+    hasError.value = true;
+  }
 };
 </script>
 

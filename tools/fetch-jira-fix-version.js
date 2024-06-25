@@ -72,18 +72,18 @@ const convertIssueLinksToText = (issuelinks) => {
 };
 
 const extractIssueData = (issue) => ({
-    key: issue.key,
-    parent: issue.fields?.parent?.key ?? 'N/A',
+    ticketNumber: issue.key,
+    epic: issue.fields?.parent?.key ?? 'N/A',
     resolution: issue.fields?.resolution?.name ?? 'N/A',
-    issuelinks: convertIssueLinksToText(issue.fields?.issuelinks) ?? 0,
-    issuetype: issue.fields?.issuetype?.name ?? 'N/A',
+    // issuelinks: convertIssueLinksToText(issue.fields?.issuelinks) ?? 0,
+    // issuetype: issue.fields?.issuetype?.name ?? 'N/A',
     brand: issue.fields?.customfield_13301?.value ?? 'N/A',
     resolutiondate: issue.fields?.resolutiondate ?? 'N/A',
     summary: issue.fields?.summary ?? 'No summary',
     description: convertDescriptionToText(issue.fields?.description) ?? 'N/A',
     fixVersionName: issue.fields?.fixVersions?.map(fv => fv.name).join(', ') ?? 'N/A',
     fixVersionReleaseDate: issue.fields?.fixVersions?.map(fv => fv.releaseDate).join(', ') ?? 'N/A',
-    priority: issue.fields?.priority?.name ?? 'N/A',
+    // priority: issue.fields?.priority?.name ?? 'N/A',
     team: issue.fields?.customfield_18834?.value ?? 'N/A',
     labels: issue.fields?.labels?.join(', ') ?? 'No labels'
 });

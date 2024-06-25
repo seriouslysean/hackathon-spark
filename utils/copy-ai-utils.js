@@ -66,7 +66,7 @@ export async function getWorkflowRun(client, runId) {
  */
 export function readIssueData(fixVersion, fileName) {
     const dirPath = join('./tmp', fixVersion);
-    const filePath = join(dirPath, `${fileName}.txt`);
+    const filePath = join(dirPath, `${fileName}`);
     console.log('getting file contents from:', filePath);
     const fileContents = fs.readFileSync(filePath, 'utf8');
     return fileContents;
@@ -108,3 +108,37 @@ export async function pollWorkflowStatus(client, runId) {
         throw error; // Handle or rethrow the error as needed
     }
 }
+
+/**
+ * Reads the contents of all files in a specified directory and returns an array of their contents.
+ * Each entry in the array corresponds to the content of one file.
+ * 
+ * @param {string} fixVersion - The version of the fix, used to construct the directory path.
+ * @returns {string[]} An array containing the contents of each file in the directory.
+ * @throws {Error} Throws an error if reading the directory or any file within it fails.
+ */
+export function getFileNames(fixVersion) {
+    const directoryPath = join('./tmp', fixVersion);
+    return fs.readdirSync(directoryPath);
+}
+
+export async function getCopyAISummary(ticketNumber, fixVersion) {
+    try {
+        const client = getCopyAIClient();
+        const prompt = await readIssueData(fixVersion, ticketNumber);
+        if (!prompt) {
+            throw new Error('Prompt not found in file.');
+        }
+        const runWorkflowResponse = await runCopyAIWorkflow(client, prompt);
+        const runId = runWorkflowResponse.data.data.id;
+        console.log(`Started workflow run with ID: ${runId}`);
+
+        const statusRes = await pollWorkflowStatus(client, runId);
+
+        saveWorkflow(fixVersion, ticketNumber, JSON.stringify(JSON.parse(statusRes?.data?.data?.output?.final_output), null, 2));
+        console.log('Workflow output saved successfully!');
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
