@@ -55,7 +55,7 @@ h3 {
 }
 
 h4 {
-  font-size: 22px;
+  font-size: 18px;
 }
 
 h5 {
