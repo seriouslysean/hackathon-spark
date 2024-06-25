@@ -40,7 +40,7 @@ try {
             <p>Failed to fetch the release.</p>
         </div>
         <div v-else class="email">
-            <h1>Release Notes for {{ releaseData.title }}</h1>
+            <h1>🚀 Release Notes for {{ releaseData.title }}</h1>
             <div class="section">
                 <p>Hello,</p>
                 <p>Here are the latest release notes.</p>
