@@ -5,8 +5,10 @@ import { RouterLink } from 'vue-router';
 <template>
   <header>
     <RouterLink to="/">
-      <h1>S.P.A.R.K.</h1>
-      <h2>Summarized Project Automation and Reporting Kit</h2>
+      <!-- <h1>S.P.A.R.K.</h1>
+      <h2>Summarized Project Automation and Reporting Kit</h2> -->
+
+      <img src="/assets/images/header.png" alt="" height="" width="100%">
     </RouterLink>
   </header>
 </template>
