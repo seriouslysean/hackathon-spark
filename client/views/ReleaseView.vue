@@ -49,6 +49,10 @@ const selectedRelease = computed(() => releaseStore.selectedRelease);
     padding: 20px 0;
 }
 
+h1 {
+    font-size: 20px;
+    font-weight: bold;
+}
 h3 {
   font-size: 20px;
   font-weight: bold;
