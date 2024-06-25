@@ -85,7 +85,7 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
 
 app.get('/api/jira/release', async (req, res) => {
     const response = {
-        title: 'Summary for Release x.y.z',
+        title: 'Release 1.2.3',
         releaseDate: 'Nov 1, 2022',
         // This will be the epics that were completed in the given release
         // We can check the parent of the tickets for this release, and see if:

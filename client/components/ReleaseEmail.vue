@@ -40,23 +40,6 @@ try {
             <p>Failed to fetch the release.</p>
         </div>
         <div v-else class="email">
-            <!-- <div class="headers">
-                <div class="header-section">
-                    <h3>Dates</h3>
-                    <h4>Web</h4>
-                    <p>{{ releaseData.releaseDate }}</p>
-                </div>
-
-                <div class="header-section">
-                    <h3>Web Versions</h3>
-                    <p><a href="#">Jira Tickets</a></p>
-
-                    <ul>
-                        <li>Version {{ releaseData.title }}</li>
-                    </ul>
-                </div>
-            </div> -->
-
             <div class="section">
                 <p>Hello,</p>
                 <p>Here are the latest release notes for {{ releaseData.title }}:</p>
@@ -79,13 +62,13 @@ try {
 
                 <div v-for="(team, index) in releaseData.teams" :key="index" class="team">
                     <h4>{{ team.name }}</h4>
-                    <h5>Customer Facing</h5>
+                    <!-- <h5>Customer Facing</h5> -->
                     <ul>
                         <li v-for="ticket in team.tickets.filter(t => t.customerFacing)" :key="ticket.ticket">
                             {{ ticket.title }} - {{ ticket.summary }}
                         </li>
                     </ul>
-                    <h5>Not Customer Facing</h5>
+                    <!-- <h5>Not Customer Facing</h5> -->
                     <ul>
                         <li v-for="ticket in team.tickets.filter(t => !t.customerFacing)" :key="ticket.ticket">
                             {{ ticket.title }} - {{ ticket.summary }}
