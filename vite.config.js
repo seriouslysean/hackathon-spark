@@ -8,6 +8,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '_fixtures': fileURLToPath(new URL('./fixtures', import.meta.url)),
       '_utils': fileURLToPath(new URL('./utils', import.meta.url)),
       '@': fileURLToPath(new URL('./client', import.meta.url)),
       '~components': fileURLToPath(new URL('./client/components', import.meta.url)),

@@ -33,6 +33,7 @@
     "npm": ">=9.x"
   },
   "imports": {
+    "#fixtures/*": "./fixtures/*",
     "#utils/*": "./utils/*"
   },
   "main": "index.js",

@@ -5,52 +5,26 @@ import { useReleaseStore, GENERATE_RELEASE_NOTES } from '~stores/release';
 const releaseStore = useReleaseStore();
 
 const props = defineProps({
-    release: {
-        type: String,
-        required: true,
-        validator: function (value) {
-            return value.trim().length > 0;
+        release: {
+                type: String,
+                required: true,
+                validator: function (value) {
+                        return value.trim().length > 0;
+                }
         }
-    }
 });
 
 const hasError = ref(false);
 const releaseData = ref({});
-///////////////
-// Real Data //
-///////////////
 
-// onMounted(async () => {
-//   try {
-//     releaseData.value = await releaseStore[GENERATE_RELEASE_NOTES]();
-//   } catch (error) {
-//     console.error('Error generating release notes', error);
-//     hasError.value = true;
-//   }
-// });
-
-///////////////
-// Mock Data //
-///////////////
-
-try {
-    const response = await fetch(`/api/jira/release`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Network response was not ok :(');
+onMounted(async () => {
+    try {
+        releaseData.value = await releaseStore[GENERATE_RELEASE_NOTES](props.release);
+    } catch (error) {
+        console.error('Error generating release notes', error);
+        hasError.value = true;
     }
-
-    const data = await response.json();
-    releaseData.value = data;
-} catch (error) {
-    console.error('Error fetching data:', error);
-    hasError.value = true;
-}
+});
 </script>
 
 <template>
