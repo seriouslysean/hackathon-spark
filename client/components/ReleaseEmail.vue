@@ -1,97 +1,77 @@
-<script>
-export default {
-  props: {
+<script setup>
+import { ref, defineProps } from 'vue';
+
+const props = defineProps({
     release: {
-      type: String,
-      required: true,
-      validator: function (value) {
-        return value.trim().length > 0;
-      }
+        type: String,
+        required: true,
+        validator: function (value) {
+            return value.trim().length > 0;
+        }
     }
-  }
+});
+
+const hasError = ref(false);
+const releaseData = ref(null);
+
+try {
+    const response = await fetch(`/api/jira/release`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error('Network response was not ok :(');
+    }
+
+    const data = await response.json();
+    releaseData.value = data;
+} catch (error) {
+    console.error('Error fetching data:', error);
+    hasError.value = true;
 }
 </script>
 
 <template>
-    <div class="headers">
-        <div class="header-section">
-            <h3>Dates</h3>
-            <h4>Web</h4>
-            <p>Nov 1, 2022</p>
-            <h4>Mobile</h4>
-            <p>Nov 2, 2022</p>
+    <div class="release-email">
+        <div v-if="hasError">
+            <p>Failed to fetch the release.</p>
         </div>
+        <div v-else class="email">
+            <div class="headers">
+                <div class="header-section">
+                    <h3>Dates</h3>
+                    <h4>Web</h4>
+                    <p>{{ releaseData.releaseDate }}</p>
+                </div>
 
-        <div class="header-section">
-            <h3>Web Versions</h3>
-            <p><a href="#">Jira Tickets</a></p>
+                <div class="header-section">
+                    <h3>Web Versions</h3>
+                    <p><a href="#">Jira Tickets</a></p>
 
-            <ul>
-                <li>SlipStream: 3.77</li>
-                <li>MonoWeb: 2.109</li>
-            </ul>
+                    <ul>
+                        <li>Version {{ releaseData.title }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div v-for="(team, index) in releaseData.teams" :key="index" class="team">
+                <h4>{{ team.name }}</h4>
+                <h5>Customer Facing</h5>
+                <ul>
+                    <li v-for="ticket in team.tickets.filter(t => t.customerFacing)" :key="ticket.ticket">
+                        {{ ticket.title }} - {{ ticket.summary }}
+                    </li>
+                </ul>
+                <h5>Not Customer Facing</h5>
+                <ul>
+                    <li v-for="ticket in team.tickets.filter(t => !t.customerFacing)" :key="ticket.ticket">
+                        {{ ticket.title }} - {{ ticket.summary }}
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-
-    <div class="team">
-        <h4>Expansion</h4>
-
-        <h5>Web</h5>
-
-        <ul>
-            <li>Added</li>
-            <ul>
-                <li>None</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-            <li>Fixed</li>
-            <ul>
-                <li>Content not displaying on tablet</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-        </ul>
-
-        <h5>Mobile</h5>
-
-        <ul>
-            <li>Added</li>
-            <ul>
-                <li>None</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-            <li>Fixed</li>
-            <ul>
-                <li>None</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-        </ul>
-    </div>
-
-    <div class="team">
-        <h4>Explore and Evaluation</h4>
-
-        <h5>Web</h5>
-
-        <ul>
-            <li>Added</li>
-            <ul>
-                <li>Quick add bundling section on PDP</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-            <li>Fixed</li>
-            <ul>
-                <li>Country Param being added as a refinement</li>
-                <li>Jump links are broken</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-        </ul>
-
-        <h5>Mobile</h5>
-
-        <ul>
-            <li>Added</li>
-            <ul>
-                <li>Quick Add bundling section on PDP</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-            <li>Fixed</li>
-            <ul>
-                <li>FP Classes navigates user to ShopTab prior to showing content</li>
-                <li>1 Android crasher resolved</li>
-            </ul> <!-- Corrected: Added missing closing tag -->
-        </ul>
     </div>
 </template>

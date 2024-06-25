@@ -57,31 +57,19 @@ const generateReleaseNotes = async () => {
 <style scoped>
 .form-container {
   display: flex;
-  align-items: center;
-  gap: 1.25em;
+  flex-direction: column;
+  gap: 1em;
 }
 
 .select-version, .submit-btn {
   padding: 0.5em 1em;
   font-size: 1em;
   border-radius: 5px;
-  height: 2.5em;
+  width: 100%;
 }
 
 .select-version {
-  flex-grow: 1;
   border: 1px solid #ccc;
 }
 
-.submit-btn {
-  background-color: #007bff;
-  color: white;
-  border: 1px solid #007bff;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.submit-btn:hover {
-  background-color: #0056b3;
-}
 </style>

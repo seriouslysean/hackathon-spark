@@ -15,7 +15,14 @@ const selectedRelease = computed(() => releaseStore.selectedRelease);
       <p>No release provided.</p>
     </div>
     <div v-else>
-      <ReleaseEmail :release="selectedRelease" />
+      <Suspense>
+        <template #default>
+          <ReleaseEmail :release="selectedRelease" />
+        </template>
+        <template #fallback>
+          <div>Loading...</div>
+        </template>
+    </Suspense>
     </div>
   </div>
 </template>
