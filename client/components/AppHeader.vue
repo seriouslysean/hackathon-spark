@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 </script>
 
 <template>
@@ -8,7 +8,7 @@ import { RouterLink } from 'vue-router';
       <!-- <h1>S.P.A.R.K.</h1>
       <h2>Summarized Project Automation and Reporting Kit</h2> -->
 
-      <img src="/assets/images/header.png" alt="" height="" width="100%">
+      <img src="/assets/images/header.png" alt="" height="" width="100%" />
     </RouterLink>
   </header>
 </template>

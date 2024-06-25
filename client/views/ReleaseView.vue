@@ -1,12 +1,12 @@
 <script setup>
-import { computed } from 'vue';
-import { useReleaseStore } from '~stores/release';
+import { computed } from 'vue'
+import { useReleaseStore } from '~stores/release'
 
-import ReleaseEmail from '~components/ReleaseEmail.vue';
+import ReleaseEmail from '~components/ReleaseEmail.vue'
 
-const releaseStore = useReleaseStore();
+const releaseStore = useReleaseStore()
 
-const selectedRelease = computed(() => releaseStore.selectedRelease);
+const selectedRelease = computed(() => releaseStore.selectedRelease)
 </script>
 
 <template>
@@ -22,7 +22,7 @@ const selectedRelease = computed(() => releaseStore.selectedRelease);
         <template #fallback>
           <div>Loading...</div>
         </template>
-    </Suspense>
+      </Suspense>
     </div>
   </div>
 </template>
@@ -46,12 +46,12 @@ const selectedRelease = computed(() => releaseStore.selectedRelease);
 }
 
 .section {
-    padding: 20px 0;
+  padding: 20px 0;
 }
 
 h1 {
-    font-size: 20px;
-    font-weight: bold;
+  font-size: 20px;
+  font-weight: bold;
 }
 h3 {
   font-size: 20px;
@@ -67,6 +67,6 @@ h5 {
 }
 
 ul {
-    padding-left: 30px;
+  padding-left: 30px;
 }
 </style>

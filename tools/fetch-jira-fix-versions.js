@@ -13,19 +13,19 @@
  * - JIRA_DOMAIN: The domain of the JIRA instance.
  */
 
-import { getJiraAxiosClient, getJiraConfig, fetchJiraVersions } from '#utils/jira-utils.js';
+import { getJiraAxiosClient, getJiraConfig, fetchJiraVersions } from '#utils/jira-utils.js'
 
 // Fetch and display JIRA versions
-(async () => {
-    try {
-        const { email, token, domain, projectKey, versionFilterPrefix } = getJiraConfig();
-        const client = getJiraAxiosClient(email, token, domain);
+;(async () => {
+  try {
+    const { email, token, domain, projectKey, versionFilterPrefix } = getJiraConfig()
+    const client = getJiraAxiosClient(email, token, domain)
 
-        const versions = await fetchJiraVersions(client, projectKey, versionFilterPrefix);
+    const versions = await fetchJiraVersions(client, projectKey, versionFilterPrefix)
 
-        console.log(`Filtered Versions (${versionFilterPrefix}*):`);
-        console.log(JSON.stringify(versions, null, 2));
-    } catch (error) {
-        console.error(error.message);
-    }
-})();
+    console.log(`Filtered Versions (${versionFilterPrefix}*):`)
+    console.log(JSON.stringify(versions, null, 2))
+  } catch (error) {
+    console.error(error.message)
+  }
+})()

@@ -1,32 +1,32 @@
-import axios from 'axios';
-import fs from 'fs';
-import { join } from 'path';
+import axios from 'axios'
+import fs from 'fs'
+import { join } from 'path'
 
 /**
  * Retrieves and validates the necessary Jira configuration from environment variables.
  * @returns {object} Returns an object with the Jira configuration if valid, otherwise throws an error.
  */
 export function getJiraConfig() {
-    const requiredEnvVars = [
-        'JIRA_EMAIL',
-        'JIRA_TOKEN',
-        'JIRA_DOMAIN',
-        'JIRA_PROJECT_KEY',
-        'JIRA_VERSION_FILTER_PREFIX',
-    ];
-    const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+  const requiredEnvVars = [
+    'JIRA_EMAIL',
+    'JIRA_TOKEN',
+    'JIRA_DOMAIN',
+    'JIRA_PROJECT_KEY',
+    'JIRA_VERSION_FILTER_PREFIX'
+  ]
+  const missingVars = requiredEnvVars.filter((v) => !process.env[v])
 
-    if (missingVars.length > 0) {
-        throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-    }
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`)
+  }
 
-    return {
-        email: process.env.JIRA_EMAIL,
-        token: process.env.JIRA_TOKEN,
-        domain: process.env.JIRA_DOMAIN,
-        projectKey: process.env.JIRA_PROJECT_KEY,
-        versionFilterPrefix: process.env.JIRA_VERSION_FILTER_PREFIX,
-    };
+  return {
+    email: process.env.JIRA_EMAIL,
+    token: process.env.JIRA_TOKEN,
+    domain: process.env.JIRA_DOMAIN,
+    projectKey: process.env.JIRA_PROJECT_KEY,
+    versionFilterPrefix: process.env.JIRA_VERSION_FILTER_PREFIX
+  }
 }
 
 /**
@@ -37,15 +37,15 @@ export function getJiraConfig() {
  * @returns {AxiosInstance} Configured Axios instance.
  */
 export function getJiraAxiosClient(email, token, domain) {
-    const authHeader = `Basic ${Buffer.from(`${email}:${token}`).toString('base64')}`;
+  const authHeader = `Basic ${Buffer.from(`${email}:${token}`).toString('base64')}`
 
-    return axios.create({
-        baseURL: `https://${domain}.atlassian.net/rest/api/3`,
-        headers: {
-            'Authorization': authHeader,
-            'Accept': 'application/json'
-        }
-    });
+  return axios.create({
+    baseURL: `https://${domain}.atlassian.net/rest/api/3`,
+    headers: {
+      Authorization: authHeader,
+      Accept: 'application/json'
+    }
+  })
 }
 
 /**
@@ -57,44 +57,44 @@ export function getJiraAxiosClient(email, token, domain) {
  * @returns {Array} Filtered (if filterPrefix is provided) and sorted list of JIRA versions.
  */
 export async function fetchJiraVersions(client, projectKey, filterPrefix) {
-    try {
-        const queryParamsObj = {
-            orderBy: '+name',
-            expand: 'issuesstatus',
-        };
-
-        const queryString = Object.entries(queryParamsObj)
-            .filter(([, value]) => value !== undefined)
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
-
-        const url = `/project/${projectKey}/versions?${queryString}`;
-        console.log(`Requesting JIRA versions with URL: ${url}`);
-
-        const response = await client.get(url);
-        console.log(`Response count from JIRA:`, response.data.length);
-
-        const semverRegex = /(\d+)\.(\d+)\.(\d+)/;
-
-        const filteredSortedAndTrimmed = response.data
-            .filter(version => version.name.startsWith(filterPrefix) && version.releaseDate)
-            .sort((a, b) => {
-                const dateComparison = new Date(b.releaseDate) - new Date(a.releaseDate);
-                if (dateComparison !== 0) {
-                    return dateComparison;
-                } else {
-                    const [, aMajor, aMinor, aPatch] = a.name.match(semverRegex) || [];
-                    const [, bMajor, bMinor, bPatch] = b.name.match(semverRegex) || [];
-                    return bMajor - aMajor || bMinor - aMinor || bPatch - aPatch;
-                }
-            })
-            .slice(0, 10);
-
-        return filteredSortedAndTrimmed;
-    } catch (error) {
-        console.error('An error occurred while fetching JIRA versions:', error);
-        throw error;
+  try {
+    const queryParamsObj = {
+      orderBy: '+name',
+      expand: 'issuesstatus'
     }
+
+    const queryString = Object.entries(queryParamsObj)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&')
+
+    const url = `/project/${projectKey}/versions?${queryString}`
+    console.log(`Requesting JIRA versions with URL: ${url}`)
+
+    const response = await client.get(url)
+    console.log(`Response count from JIRA:`, response.data.length)
+
+    const semverRegex = /(\d+)\.(\d+)\.(\d+)/
+
+    const filteredSortedAndTrimmed = response.data
+      .filter((version) => version.name.startsWith(filterPrefix) && version.releaseDate)
+      .sort((a, b) => {
+        const dateComparison = new Date(b.releaseDate) - new Date(a.releaseDate)
+        if (dateComparison !== 0) {
+          return dateComparison
+        } else {
+          const [, aMajor, aMinor, aPatch] = a.name.match(semverRegex) || []
+          const [, bMajor, bMinor, bPatch] = b.name.match(semverRegex) || []
+          return bMajor - aMajor || bMinor - aMinor || bPatch - aPatch
+        }
+      })
+      .slice(0, 10)
+
+    return filteredSortedAndTrimmed
+  } catch (error) {
+    console.error('An error occurred while fetching JIRA versions:', error)
+    throw error
+  }
 }
 
 /**
@@ -104,13 +104,13 @@ export async function fetchJiraVersions(client, projectKey, filterPrefix) {
  * @returns {object} The Jira ticket details.
  */
 export async function fetchTicketById(client, ticketId) {
-    try {
-        const ticketResponse = await client.get(`/issue/${ticketId}`);
-        return ticketResponse.data;
-    } catch (error) {
-        console.error('An error occurred while fetching the ticket:', error.message);
-        throw error;
-    }
+  try {
+    const ticketResponse = await client.get(`/issue/${ticketId}`)
+    return ticketResponse.data
+  } catch (error) {
+    console.error('An error occurred while fetching the ticket:', error.message)
+    throw error
+  }
 }
 
 /**
@@ -120,14 +120,14 @@ export async function fetchTicketById(client, ticketId) {
  * @returns {Array} List of Jira tickets.
  */
 export async function fetchTicketsByFixVersion(client, fixVersion) {
-    try {
-        const jql = `fixVersion = "${fixVersion}"`;
-        const searchResponse = await client.get(`/search?jql=${encodeURIComponent(jql)}`);
-        return searchResponse.data.issues;
-    } catch (error) {
-        console.error('An error occurred while fetching tickets:', error.message);
-        throw error;
-    }
+  try {
+    const jql = `fixVersion = "${fixVersion}"`
+    const searchResponse = await client.get(`/search?jql=${encodeURIComponent(jql)}`)
+    return searchResponse.data.issues
+  } catch (error) {
+    console.error('An error occurred while fetching tickets:', error.message)
+    throw error
+  }
 }
 
 /**
@@ -137,15 +137,15 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
  * @param {object} issueData The issue data to save.
  */
 export function saveIssueData(fixVersion, issueData) {
-    const dirPath = join('./tmp', fixVersion);
-    const filePath = join(dirPath, `${issueData.ticketNumber}.json`);
+  const dirPath = join('./tmp', fixVersion)
+  const filePath = join(dirPath, `${issueData.ticketNumber}.json`)
 
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-    const jsonIssueData = JSON.stringify(issueData, null, 2);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true })
+  }
+  const jsonIssueData = JSON.stringify(issueData, null, 2)
 
-    fs.writeFileSync(filePath, jsonIssueData + '\n\n');
+  fs.writeFileSync(filePath, jsonIssueData + '\n\n')
 }
 
 /**
@@ -154,36 +154,40 @@ export function saveIssueData(fixVersion, issueData) {
  * @returns {string} Plain text description.
  */
 export const convertDescriptionToText = (description) => {
-    if (!description || !description.content) return '';
+  if (!description || !description.content) return ''
 
-    const extractText = (content) => content.reduce((acc, node) => {
-        if (!node.content) return acc;
+  const extractText = (content) =>
+    content.reduce((acc, node) => {
+      if (!node.content) return acc
 
-        const processNodeText = (item) => {
-            let text = item.text || '';
-            if (item.marks) {
-                item.marks.forEach(mark => {
-                    if (mark.type === 'strong') {
-                        text = `**${text.trim()}**`;
-                    }
-                });
+      const processNodeText = (item) => {
+        let text = item.text || ''
+        if (item.marks) {
+          item.marks.forEach((mark) => {
+            if (mark.type === 'strong') {
+              text = `**${text.trim()}**`
             }
-            return text.trim();
-        };
-
-        let prefix = '';
-        if (node.type === 'heading') {
-            const level = node.attrs.level;
-            prefix = '#'.repeat(level) + ' ';
+          })
         }
+        return text.trim()
+      }
 
-        // Join node texts carefully, ensuring no extra spaces are introduced
-        const nodeText = node.content.map(processNodeText).filter(text => text.length > 0).join(' ');
-        return acc + prefix + nodeText + '\n'; // No need to trim here as spaces are now managed
-    }, '');
+      let prefix = ''
+      if (node.type === 'heading') {
+        const level = node.attrs.level
+        prefix = '#'.repeat(level) + ' '
+      }
 
-    return extractText(description.content).trim();
-};
+      // Join node texts carefully, ensuring no extra spaces are introduced
+      const nodeText = node.content
+        .map(processNodeText)
+        .filter((text) => text.length > 0)
+        .join(' ')
+      return acc + prefix + nodeText + '\n' // No need to trim here as spaces are now managed
+    }, '')
+
+  return extractText(description.content).trim()
+}
 
 /**
  * Extracts relevant issue data from a Jira issue object.
@@ -191,21 +195,21 @@ export const convertDescriptionToText = (description) => {
  * @returns {object} Extracted issue data.
  */
 const extractIssueData = (issue) => ({
-    ticketNumber: issue.key,
-    epic: issue.fields?.parent?.key ?? 'N/A',
-    resolution: issue.fields?.resolution?.name ?? 'N/A',
-    // issuelinks: convertIssueLinksToText(issue.fields?.issuelinks) ?? 0,
-    // issuetype: issue.fields?.issuetype?.name ?? 'N/A',
-    brand: issue.fields?.customfield_13301?.value ?? 'N/A',
-    resolutiondate: issue.fields?.resolutiondate ?? 'N/A',
-    summary: issue.fields?.summary ?? 'No summary',
-    description: convertDescriptionToText(issue.fields?.description) ?? 'N/A',
-    fixVersionName: issue.fields?.fixVersions?.map(fv => fv.name).join(', ') ?? 'N/A',
-    fixVersionReleaseDate: issue.fields?.fixVersions?.map(fv => fv.releaseDate).join(', ') ?? 'N/A',
-    // priority: issue.fields?.priority?.name ?? 'N/A',
-    team: issue.fields?.customfield_18834?.value ?? 'N/A',
-    labels: issue.fields?.labels?.join(', ') ?? 'No labels'
-});
+  ticketNumber: issue.key,
+  epic: issue.fields?.parent?.key ?? 'N/A',
+  resolution: issue.fields?.resolution?.name ?? 'N/A',
+  // issuelinks: convertIssueLinksToText(issue.fields?.issuelinks) ?? 0,
+  // issuetype: issue.fields?.issuetype?.name ?? 'N/A',
+  brand: issue.fields?.customfield_13301?.value ?? 'N/A',
+  resolutiondate: issue.fields?.resolutiondate ?? 'N/A',
+  summary: issue.fields?.summary ?? 'No summary',
+  description: convertDescriptionToText(issue.fields?.description) ?? 'N/A',
+  fixVersionName: issue.fields?.fixVersions?.map((fv) => fv.name).join(', ') ?? 'N/A',
+  fixVersionReleaseDate: issue.fields?.fixVersions?.map((fv) => fv.releaseDate).join(', ') ?? 'N/A',
+  // priority: issue.fields?.priority?.name ?? 'N/A',
+  team: issue.fields?.customfield_18834?.value ?? 'N/A',
+  labels: issue.fields?.labels?.join(', ') ?? 'No labels'
+})
 
 /**
  * Fetches tickets by fix version and saves their data to files.
@@ -213,26 +217,26 @@ const extractIssueData = (issue) => ({
  * @param {string} fixVersion The Jira fix version.
  */
 export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
-    try {
-        const FIX_VERSION = fixVersion;
-        const dirPath = join('./tmp', fixVersion);
-        const filePath = join(dirPath, 'UW-34288.json')
-        if (fs.existsSync(dirPath)) {
-            console.log(`Files already exist for ${fixVersion}`);
-            console.log(filePath, fs.existsSync(filePath));
-            return;
-        }
-
-        const issues = await fetchTicketsByFixVersion(client, FIX_VERSION);
-
-        issues.forEach(issue => {
-            const issueData = extractIssueData(issue);
-            saveIssueData(FIX_VERSION, issueData);
-            console.log(`Saved ${issue.key}`);
-        });
-    } catch (error) {
-        console.error(error.message);
+  try {
+    const FIX_VERSION = fixVersion
+    const dirPath = join('./tmp', fixVersion)
+    const filePath = join(dirPath, 'UW-34288.json')
+    if (fs.existsSync(dirPath)) {
+      console.log(`Files already exist for ${fixVersion}`)
+      console.log(filePath, fs.existsSync(filePath))
+      return
     }
+
+    const issues = await fetchTicketsByFixVersion(client, FIX_VERSION)
+
+    issues.forEach((issue) => {
+      const issueData = extractIssueData(issue)
+      saveIssueData(FIX_VERSION, issueData)
+      console.log(`Saved ${issue.key}`)
+    })
+  } catch (error) {
+    console.error(error.message)
+  }
 }
 
 /**
@@ -240,7 +244,7 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
  * @returns {Array<string>} List of team names.
  */
 function getTeamNamesFromConfig() {
-    return process.env.JIRA_TEAM_NAMES?.split(',') || [];
+  return process.env.JIRA_TEAM_NAMES?.split(',') || []
 }
 
 /**
@@ -249,21 +253,21 @@ function getTeamNamesFromConfig() {
  * @returns {Array<object>} Tickets sorted by teams.
  */
 export function sortTicketsByTeams(tickets) {
-    const engineeringTeams = getTeamNamesFromConfig();
-    const sortedTickets = [];
-    engineeringTeams.forEach(team => {
-        const teamTickets = tickets.filter(ticket => ticket.team === team);
-        const teamRelease = {
-            name: team,
-            tickets: teamTickets.map(ticket => ({
-                ticket: ticket.ticketNumber,
-                title: ticket.summary,
-                summary: ticket.copyAIDescription,
-                customerFacing: ticket.isCustomerFacing,
-            })),
-        };
-        sortedTickets.push(teamRelease);
-    });
+  const engineeringTeams = getTeamNamesFromConfig()
+  const sortedTickets = []
+  engineeringTeams.forEach((team) => {
+    const teamTickets = tickets.filter((ticket) => ticket.team === team)
+    const teamRelease = {
+      name: team,
+      tickets: teamTickets.map((ticket) => ({
+        ticket: ticket.ticketNumber,
+        title: ticket.summary,
+        summary: ticket.copyAIDescription,
+        customerFacing: ticket.isCustomerFacing
+      }))
+    }
+    sortedTickets.push(teamRelease)
+  })
 
-    return sortedTickets;
+  return sortedTickets
 }

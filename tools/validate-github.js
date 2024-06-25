@@ -11,27 +11,27 @@
  * - GITHUB_TOKEN: The Personal Access Token for GitHub access.
  */
 
-import { getGitHubClient, getGitHubConfig } from '#utils/github-utils.js';
+import { getGitHubClient, getGitHubConfig } from '#utils/github-utils.js'
 
 async function validatePAT(client) {
-    try {
-        // Validate PAT by fetching user information
-        const userResponse = await client.request('GET /user');
-        console.log('GitHub PAT is valid. Authenticated as:', userResponse.data.login);
+  try {
+    // Validate PAT by fetching user information
+    const userResponse = await client.request('GET /user')
+    console.log('GitHub PAT is valid. Authenticated as:', userResponse.data.login)
 
-        // Optionally, fetch and list accessible repositories or perform other checks
-    } catch (error) {
-        console.error('An error occurred while validating PAT:', error.message);
-    }
+    // Optionally, fetch and list accessible repositories or perform other checks
+  } catch (error) {
+    console.error('An error occurred while validating PAT:', error.message)
+  }
 }
 
 // Example usage with environment variables
-(async () => {
-    try {
-        const token = getGitHubConfig();
-        const client = getGitHubClient(token);
-        await validatePAT(client);
-    } catch (error) {
-        console.error(error.message);
-    }
-})();
+;(async () => {
+  try {
+    const token = getGitHubConfig()
+    const client = getGitHubClient(token)
+    await validatePAT(client)
+  } catch (error) {
+    console.error(error.message)
+  }
+})()

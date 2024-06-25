@@ -1,12 +1,14 @@
 <script setup>
-import { computed } from 'vue';
+import { computed } from 'vue'
 
-const currentYear = computed(() => new Date().getFullYear());
+const currentYear = computed(() => new Date().getFullYear())
 </script>
 
 <template>
   <footer>
-    <small>Made with <span class="heart">&hearts;</span> for the {{ currentYear }} URBN Hackathon</small>
+    <small
+      >Made with <span class="heart">&hearts;</span> for the {{ currentYear }} URBN Hackathon</small
+    >
   </footer>
 </template>
 
@@ -16,6 +18,6 @@ footer {
 }
 
 .heart {
-  color: #FF0000;
+  color: #ff0000;
 }
 </style>

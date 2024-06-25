@@ -1,9 +1,9 @@
 // index.js
-import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '~views/HomeView.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '~views/HomeView.vue'
 
-export const ROUTE_HOME = 'home';
-export const ROUTE_RELEASE = 'release';
+export const ROUTE_HOME = 'home'
+export const ROUTE_RELEASE = 'release'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,9 +17,9 @@ const router = createRouter({
       path: '/release',
       name: ROUTE_RELEASE,
       component: () => import('~views/ReleaseView.vue'),
-      props: true,
+      props: true
     }
   ]
-});
+})
 
-export default router;
+export default router

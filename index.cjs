@@ -1,5 +1,5 @@
 /* eslint-disable */
-const packageJson = require('./package.json');
+const packageJson = require('./package.json')
 
 console.log(`
 
@@ -24,4 +24,4 @@ console.log(`
               '  ~~~~~ ${packageJson.name}
                          v${packageJson.version}
 
-`);
+`)
