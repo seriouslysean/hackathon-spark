@@ -1,0 +1,8 @@
+# Ignore all root-level files
+/*
+# But still include all directories at the root
+!/*/
+
+*.json
+.env*
+package*
