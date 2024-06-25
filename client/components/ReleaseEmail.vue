@@ -42,12 +42,12 @@ try {
         <div v-else class="email">
             <div class="section">
                 <p>Hello,</p>
-                <p>Here are the latest release notes for {{ releaseData.title }}:</p>
+                <p>Here are the latest release notes.</p>
             </div>
 
             <div class="section">
 
-                <h3>Feature Releases and Highlights</h3>
+                <h3>Feature Releases and Highlights for {{ releaseData.title }}</h3>
                 <ul>
                     <li>highlight 1</li>
                     <li>highlight 2</li>
@@ -58,7 +58,7 @@ try {
 
             <div class="section">
 
-                <h3>Bug Fixes and Improvements</h3>
+                <h3>Bug Fixes and Improvements for {{ releaseData.title }}</h3>
 
                 <div v-for="(team, index) in releaseData.teams" :key="index" class="team">
                     <h4>{{ team.name }}</h4>
