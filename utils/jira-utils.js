@@ -143,20 +143,14 @@ export async function fetchTicketsByFixVersion(client, fixVersion) {
  */
 export function saveIssueData(fixVersion, issueData) {
     const dirPath = join('./tmp', fixVersion);
-    const filePath = join(dirPath, `${issueData.ticketNumber}.txt`);
-
+    const filePath = join(dirPath, `${issueData.ticketNumber}.json`);
+    
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
     }
+    const jsonIssueData = JSON.stringify(issueData, null, 2);
 
-    const issueDataString = Object.entries(issueData).map(([key, value]) => {
-        const indentedValue = value.split('\n').map((line, index) => {
-            return index === 0 ? line : '    ' + line;
-        }).join('\n');
-        return `${key}: ${indentedValue}`;
-    }).join('\n\n');
-
-    fs.writeFileSync(filePath, issueDataString + '\n\n');
+    fs.writeFileSync(filePath, jsonIssueData + '\n\n');
 }
 
 const convertDescriptionToText = (description) => {
@@ -211,12 +205,13 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
     try {
         const FIX_VERSION = fixVersion;
         const dirPath = join('./tmp', fixVersion);
-        const files = fs.readdirSync(dirPath);
-        if (files.length) {
+        const filePath = join(dirPath, 'UW-34288.json')
+        if (fs.existsSync(dirPath)) {
             console.log(`Files already exist for ${fixVersion}`);
+            console.log(filePath, fs.existsSync(filePath));
             return;
         }
-        
+
         const issues = await fetchTicketsByFixVersion(client, FIX_VERSION);
 
         issues.forEach(issue => {
@@ -227,4 +222,28 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
     } catch (error) {
         console.error(error.message);
     }
+}
+
+function getTeamNamesFromConfig() {
+    return process.env.JIRA_TEAM_NAMES?.split(',') || [];
+}
+
+export function sortTicketsByTeams(tickets) {
+    const engineeringTeams = getTeamNamesFromConfig();
+    const sortedTickets = [];
+    engineeringTeams.forEach(team => {
+        const teamTickets = tickets.filter(ticket => ticket.team === team);
+        const teamRelease = {
+            name: team,
+            tickets: teamTickets.map(ticket => ({
+                ticket: ticket.ticketNumber,
+                title: ticket.summary,
+                summary: ticket.copyAIDescription,
+                customerFacing: ticket.isCustomerFacing,
+            })),
+        };
+        sortedTickets.push(teamRelease);
+    });
+
+    return sortedTickets;
 }

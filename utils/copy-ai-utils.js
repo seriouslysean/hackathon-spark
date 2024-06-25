@@ -64,12 +64,10 @@ export async function getWorkflowRun(client, runId) {
  * @param {string} fileName - The name of the file to read.
  * @returns {string} The contents of the file as a string.
  */
-export function readIssueData(fixVersion, fileName) {
-    const dirPath = join('./tmp', fixVersion);
-    const filePath = join(dirPath, `${fileName}`);
-    console.log('getting file contents from:', filePath);
+export function readIssueData(filePath) {
     const fileContents = fs.readFileSync(filePath, 'utf8');
-    return fileContents;
+    const parsedData = JSON.parse(fileContents);
+    return parsedData;
 }
 
 /**
@@ -78,8 +76,12 @@ export function readIssueData(fixVersion, fileName) {
  * @param {object} issueData - The issue data to save.
  */
 export function saveWorkflow(fixVersion, ticketNumber, workflowData) {
-    const dirPath = join('./tmp', fixVersion);
-    const filePath = join(dirPath, `${ticketNumber}--workflow.txt`);
+    
+    const dirPath = join('./tmp/workflows', fixVersion);
+    const filePath = join(dirPath, `${ticketNumber}--workflow.json`);
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
 
     fs.writeFileSync(filePath, workflowData + '\n\n');
 }
@@ -117,15 +119,37 @@ export async function pollWorkflowStatus(client, runId) {
  * @returns {string[]} An array containing the contents of each file in the directory.
  * @throws {Error} Throws an error if reading the directory or any file within it fails.
  */
-export function getFileNames(fixVersion) {
+export function readFileContents(fixVersion) {
     const directoryPath = join('./tmp', fixVersion);
-    return fs.readdirSync(directoryPath);
+    console.log('getting file contents from:', directoryPath);
+
+    try {
+        const files = fs.readdirSync(directoryPath);
+        const contentsArray = [];
+        for (const file of files) {
+            const filePath = join(directoryPath, file);
+            const content = readIssueData(filePath);
+            contentsArray.push(content);
+        }
+        return contentsArray;
+    } catch (error) {
+        console.error('Error reading files:', error);
+        throw error; // Rethrow or handle as needed
+    }
 }
 
-export async function getCopyAISummary(ticketNumber, fixVersion) {
+export async function getCopyAISummary(prompt, ticketNumber, fixVersion) {
     try {
+        const directoryPath = join('./tmp/workflows', fixVersion);
+        const filePath = join(directoryPath, `${ticketNumber}--workflow.json`);
+        
+        if (fs.existsSync(filePath)) {
+            console.log(`Workflow file already exist for ${ticketNumber}`);
+            return readIssueData(filePath);
+        }
+
         const client = getCopyAIClient();
-        const prompt = await readIssueData(fixVersion, ticketNumber);
+        
         if (!prompt) {
             throw new Error('Prompt not found in file.');
         }
@@ -137,6 +161,7 @@ export async function getCopyAISummary(ticketNumber, fixVersion) {
 
         saveWorkflow(fixVersion, ticketNumber, JSON.stringify(JSON.parse(statusRes?.data?.data?.output?.final_output), null, 2));
         console.log('Workflow output saved successfully!');
+        return statusRes?.data?.data?.output?.final_output;
     } catch (error) {
         console.error(error.message);
     }

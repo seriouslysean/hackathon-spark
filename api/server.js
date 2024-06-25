@@ -4,9 +4,10 @@ import {
     getJiraConfig,
     fetchJiraVersions,
     fetchTicketsAndSaveToFiles,
+    sortTicketsByTeams,
 } from '#utils/jira-utils.js';
 
-import { getCopyAISummary, getFileNames } from '#utils/copy-ai-utils.js';
+import { getCopyAISummary, readFileContents } from '#utils/copy-ai-utils.js';
 
 // app setup
 const app = express();
@@ -40,52 +41,34 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
     const client = getJiraAxiosClient(email, token, domain);
     try {
         await fetchTicketsAndSaveToFiles(client, fixVersion);
-        const fileNames = getFileNames(fixVersion);
-        const copyAISummary = await getCopyAISummary(fileNames[0], fixVersion);
-        console.log('CopyAI Summary:');
-        console.log(copyAISummary);
-        res.status(200).send('Release notes generated successfully');
+        const ticketFiles = readFileContents(fixVersion);
+        let ticketsWithSummaries = [];
+        for (const file of ticketFiles) {
+            const copyAIResponse = await getCopyAISummary(JSON.stringify(file, null, 2), file.ticketNumber, fixVersion);
+            const { summary: copyAIDescription, isCustomerFacing } = copyAIResponse;
+            ticketsWithSummaries.push({ ...file, copyAIDescription, isCustomerFacing});
+        }
+        
+        const sortedTickets = sortTicketsByTeams(ticketsWithSummaries);
+        console.log('Sorted Tickets:', sortedTickets);
+        
+        const response = {
+            title: `Summary for Release ${fixVersion}`,
+            releaseDate: ticketsWithSummaries[0].fixVersionReleaseDate,
+            epics: [], // TODO
+            teams: sortedTickets,
+        }
+        console.log(response);
+        res.status(200).send(response);
     } catch (error) {
         console.error(error.message);
         res.status(500).send(error.message);
     }
-    //
-    // Build response based on outcome of workflow runs
-    //
-    //
-    // const response = {
-    //     title: 'Summary for Release x.y.z',
-    //     releaseDate: 'Nov 1, 2022',
-    //     // This will be the epics that were completed in the given release
-    //     // We can check the parent of the tickets for this release, and see if:
-    //     //   1. It has a type of epic
-    //     //   2. It has a fix version of the current release
-    //     epics: [{
-    //         summary: 'Summary of whatever epic was completed',
-    //     }],
-    //     // Need team names, may need to store in ENV and split on a comma delimited value
-    //     // But see if we can get them from JIRA first
-    //     teams: [{
-    //         name: 'explore & eval',
-    //         tickets: [{
-    //             ticket: 'UW-123',
-    //             title: 'Title of ticket',
-    //             summary: 'Summary of the ticket from COPYAI'
-    //         }],
-    //     }, {
-    //         name: 'expansion',
-    //         tickets: [{
-    //             ticket: 'UW-123',
-    //             title: 'Title of ticket',
-    //             summary: 'Summary of the ticket from COPYAI'
-    //         }],
-    //     }]
-    // };
 });
 
 app.get('/api/jira/release', async (req, res) => {
     const response = {
-        title: 'Summary for Release x.y.z',
+        title: 'Release 1.2.3',
         releaseDate: 'Nov 1, 2022',
         // This will be the epics that were completed in the given release
         // We can check the parent of the tickets for this release, and see if:

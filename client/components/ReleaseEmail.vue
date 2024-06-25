@@ -1,5 +1,8 @@
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref, defineProps, onMounted } from 'vue';
+import { useReleaseStore, GENERATE_RELEASE_NOTES } from '~stores/release';
+
+const releaseStore = useReleaseStore();
 
 const props = defineProps({
     release: {
@@ -12,7 +15,23 @@ const props = defineProps({
 });
 
 const hasError = ref(false);
-const releaseData = ref(null);
+const releaseData = ref({});
+///////////////
+// Real Data //
+///////////////
+
+// onMounted(async () => {
+//   try {
+//     releaseData.value = await releaseStore[GENERATE_RELEASE_NOTES]();
+//   } catch (error) {
+//     console.error('Error generating release notes', error);
+//     hasError.value = true;
+//   }
+// });
+
+///////////////
+// Mock Data //
+///////////////
 
 try {
     const response = await fetch(`/api/jira/release`, {
@@ -61,17 +80,23 @@ try {
                 <h4>{{ team.name }}</h4>
                 <h5>Customer Facing</h5>
                 <ul>
-                    <li v-for="ticket in team.tickets.filter(t => t.customerFacing)" :key="ticket.ticket">
-                        {{ ticket.title }} - {{ ticket.summary }}
+                    <li class="ticket" v-for="ticket in team.tickets.filter(t => t.customerFacing)" :key="ticket.ticket">
+                        {{ticket.ticket}}: {{ ticket.title }} - {{ ticket.summary }}
                     </li>
                 </ul>
                 <h5>Not Customer Facing</h5>
                 <ul>
                     <li v-for="ticket in team.tickets.filter(t => !t.customerFacing)" :key="ticket.ticket">
-                        {{ ticket.title }} - {{ ticket.summary }}
+                        {{ticket.ticket}}: {{ ticket.title }} - {{ ticket.summary }}
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.ticket {
+    margin-bottom: 1em;
+}
+</style>

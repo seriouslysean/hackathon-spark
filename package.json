@@ -22,6 +22,7 @@
     "eslint-plugin-vue": "^9.23.0",
     "jsdom": "^24.1.0",
     "prettier": "^3.2.5",
+    "rimraf": "^5.0.7",
     "vite": "^5.3.1",
     "vitest": "^1.6.0",
     "yargs": "^17.7.2"
@@ -42,7 +43,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "preview": "vite preview",
     "start:client": "vite",
-    "start:server": "dotenv -e config/.env -- nodemon api/server.js",
+    "start:server": "dotenv -e config/.env -- nodemon --watch api api/server.js",
     "test:unit": "vitest",
     "tool:fetch-github-release": "dotenv -e config/.env -- node tools/fetch-github-release.js",
     "tool:fetch-jira-fix-version": "dotenv -e config/.env -- node tools/fetch-jira-fix-version.js",

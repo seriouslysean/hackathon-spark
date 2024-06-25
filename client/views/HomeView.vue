@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ROUTE_RELEASE } from '@/router';
-import { useReleaseStore, FETCH_RELEASE_VERSIONS, GENERATE_RELEASE_NOTES } from '~stores/release';
+import { useReleaseStore, FETCH_RELEASE_VERSIONS } from '~stores/release';
 
 const router = useRouter();
 const releaseStore = useReleaseStore();
@@ -19,28 +19,20 @@ onMounted(async () => {
 });
 
 const onSubmit = () => {
+  if (!releaseStore.selectedRelease) {
+      console.log('Please select a release version');
+      hasError.value = true;
+      return;
+    }
   router.push({ name: ROUTE_RELEASE });
 };
 
-const generateReleaseNotes = async () => {
-  try {
-    if (!releaseStore.selectedRelease) {
-      console.log('Please select a release version');
-      this.hasError = true;
-      return;
-    }
-    await releaseStore[GENERATE_RELEASE_NOTES]();
-  } catch (error) {
-    console.error('Error generating release notes', error);
-    hasError.value = true;
-  }
-};
 </script>
 
 <template>
     <div class="home">
         <div v-if="hasError">
-            <p>Failed to load release versions. Please try again later.</p>
+            <p>Failed to load release versions, make sure a version is selected in the dropdown. Please try again later.</p>
         </div>
         <form class="form-container" @submit.prevent="onSubmit">
             <select class="select-version" v-model="releaseStore.selectedRelease">
