@@ -1,48 +1,78 @@
 @import './reset.css';
 @import './base.css';
 
+body {
+  display: flex;
+  place-items: center;
+  font-size: 18px;
+  line-height: 1.6em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-weight: bold;
+}
+
+h1, h3 {
+  font-size: 1.25em;
+}
+
+h4 {
+  font-size: 1.125em;
+  font-weight: 500;
+}
+
+ul {
+  padding-left: 1.875em;
+}
+
 #app {
   display: flex;
-  flex-direction: column; /* Stack children vertically */
+  flex-direction: column;
   min-height: 100vh;
+  min-width: 100%;
+  width: 800px;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
 }
 
+p {
+  margin-bottom: 1em;
+}
+
 a {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+  color: #7d7aad;
   padding: 0.5em 0;
+  background-color: transparent;
+  border: none;
+  background-color: transparent;
+  cursor: auto;
 }
 
 button {
-  background-color: #7d7aad;
   color: #FFF;
-  padding: 0.5em;
-  border: 1px solid #ddd;
+  padding: 0.75em;
+  background-color: #7d7aad;
+  border: 2px solid #7d7aad;
+  text-decoration: underline;
+}
+
+a, button {
+  text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 0.5em;
 }
 
 @media (hover: hover) {
-  a:hover,
+  a:hover {
+    color: #434177;
+  }
   button:hover {
     background-color: #fff;
-    color: #000;
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    min-width: 800px;
+    color: #7d7aad;
   }
 }

@@ -72,6 +72,7 @@ const handleEmailDownloadClick = async () => {
 
       <div class="actions">
         <button @click="handleEmailDownloadClick">Download Email File</button>
+        <button>Send Email</button>
       </div>
 
       <div class="email" ref="emailContentRef">
@@ -115,7 +116,7 @@ const handleEmailDownloadClick = async () => {
           <div class="section">
             <p>
               For more details on each line item, please refer to
-              <a href="#">all JIRA tickets in this release</a>
+              <a href="#">all JIRA tickets in this release</a>.
             </p>
 
             <p>Thank you!</p>
@@ -126,9 +127,45 @@ const handleEmailDownloadClick = async () => {
 </template>
 
 <style scoped>
+h1 {
+  text-align: center;
+}
+
+.email {
+    margin: 2em;
+    border: 2px dotted #CCC;
+    padding: 2em;
+}
+
+.team {
+  border-bottom: 1px solid #bbb;
+  margin-bottom: 1.5em;
+  padding-bottom: 1.5em;
+}
+
+.section {
+  padding: 0 0 1.5em 0;
+}
+
+.section :first-child {
+  margin-top: 0;
+}
+
+.section :last-child {
+  margin-bottom: 0;
+}
+
 .actions {
   text-align: center;
   margin: 1em 0;
+}
+
+.actions button {
+  margin-right: 1em;
+}
+
+.actions button:last-child {
+  margin-right: 0;
 }
 
 .ticket {
