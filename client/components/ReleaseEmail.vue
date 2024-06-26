@@ -118,13 +118,13 @@ const handleEmailDownloadClick = async () => {
               <!-- <h5>Customer Facing</h5> -->
               <ul>
                 <li v-for="ticket in team.customerFacingTickets" :key="ticket.ticket">
-                  {{ ticket.title }} - {{ ticket.summary }}
+                  {{ ticket.summary }}
                 </li>
               </ul>
               <!-- <h5>Not Customer Facing</h5> -->
               <ul>
                 <li v-for="ticket in team.nonCustomerFacingTickets" :key="ticket.ticket">
-                  {{ ticket.title }} - {{ ticket.summary }}*
+                  {{ ticket.summary }}*
                 </li>
               </ul>
             </div>
