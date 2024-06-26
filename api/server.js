@@ -90,10 +90,10 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
     }
 
     const sortedTickets = sortTicketsByTeams(ticketsWithSummaries)
-    console.log('Sorted Tickets:', sortedTickets)
+    console.log('Sorted Tickets:', JSON.stringify(sortedTickets, null, 2))
 
     const response = {
-      title: `Summary for Release ${fixVersion}`,
+      title: fixVersion,
       releaseDate: ticketsWithSummaries[0].fixVersionReleaseDate,
       epics: epicsWithSummaries,
       teams: sortedTickets
