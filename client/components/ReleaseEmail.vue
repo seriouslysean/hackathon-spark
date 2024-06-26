@@ -32,52 +32,55 @@ onMounted(async () => {
     <div v-if="hasError">
       <p>Failed to fetch the release.</p>
     </div>
-    <div v-else class="email">
+    <div v-else>
       <h1>🚀 Release Notes for {{ releaseData.title }}</h1>
-      <div class="section">
-        <p>Hello,</p>
-        <p>Here are the latest release notes.</p>
-      </div>
 
-      <div class="section">
-        <h3>✨ Feature Releases and Highlights</h3>
-        <ul>
-          <li>highlight 1</li>
-          <li>highlight 2</li>
-          <li>highlight 3</li>
-        </ul>
-      </div>
+      <div class="email">
+          <div class="section">
+            <p>Hello,</p>
+            <p>Here are the latest release notes.</p>
+          </div>
 
-      <div class="section">
-        <h3>🛠️ Bug Fixes and Improvements</h3>
+          <div class="section">
+            <h3>✨ Feature Releases and Highlights</h3>
+            <ul>
+              <li>highlight 1</li>
+              <li>highlight 2</li>
+              <li>highlight 3</li>
+            </ul>
+          </div>
 
-        <div v-for="(team, index) in releaseData.teams" :key="index" class="team">
-          <h4>{{ team.name }}</h4>
-          <!-- <h5>Customer Facing</h5> -->
-          <ul>
-            <li v-for="ticket in team.tickets.filter((t) => t.customerFacing)" :key="ticket.ticket">
-              {{ ticket.title }} - {{ ticket.summary }}
-            </li>
-          </ul>
-          <!-- <h5>Not Customer Facing</h5> -->
-          <ul>
-            <li
-              v-for="ticket in team.tickets.filter((t) => !t.customerFacing)"
-              :key="ticket.ticket"
-            >
-              {{ ticket.title }} - {{ ticket.summary }}
-            </li>
-          </ul>
-        </div>
-      </div>
+          <div class="section">
+            <h3>🛠️ Bug Fixes and Improvements</h3>
 
-      <div class="section">
-        <p>
-          For more details on each line item, please refer to
-          <a href="#">all JIRA tickets in this release</a>
-        </p>
+            <div v-for="(team, index) in releaseData.teams" :key="index" class="team">
+              <h4>{{ team.name }}</h4>
+              <!-- <h5>Customer Facing</h5> -->
+              <ul>
+                <li v-for="ticket in team.tickets.filter((t) => t.customerFacing)" :key="ticket.ticket">
+                  {{ ticket.title }} - {{ ticket.summary }}
+                </li>
+              </ul>
+              <!-- <h5>Not Customer Facing</h5> -->
+              <ul>
+                <li
+                  v-for="ticket in team.tickets.filter((t) => !t.customerFacing)"
+                  :key="ticket.ticket"
+                >
+                  {{ ticket.title }} - {{ ticket.summary }}
+                </li>
+              </ul>
+            </div>
+          </div>
 
-        <p>Thank you!</p>
+          <div class="section">
+            <p>
+              For more details on each line item, please refer to
+              <a href="#">all JIRA tickets in this release</a>
+            </p>
+
+            <p>Thank you!</p>
+          </div>
       </div>
     </div>
   </div>

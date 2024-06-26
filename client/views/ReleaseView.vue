@@ -28,16 +28,12 @@ const selectedRelease = computed(() => releaseStore.selectedRelease)
 </template>
 
 <style>
-/* .headers {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 10px;
-  margin-bottom: 20px;
+.email {
+    width: 90%;
+    margin: 0 auto;
+    border: 1px dotted #CCC;
+    padding: 20px;
 }
-.header-section {
-  padding: 20px;
-  border: 1px dashed #ccc;
-} */
 
 .team {
   border-bottom: 1px solid #bbb;
@@ -46,12 +42,14 @@ const selectedRelease = computed(() => releaseStore.selectedRelease)
 }
 
 .section {
-  padding: 20px 0;
+  padding: 0 0 20px 0;
 }
 
 h1 {
   font-size: 20px;
   font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
 }
 h3 {
   font-size: 20px;
