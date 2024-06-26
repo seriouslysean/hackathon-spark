@@ -212,6 +212,19 @@ const extractIssueData = (issue) => ({
 })
 
 /**
+ * Extracts relevant issue data from a Jira epic object.
+ * @param {object} issue Jira epic object.
+ * @returns {object} Extracted epic data.
+ */
+const extractEpicIssueData = (issue) => ({
+  ticketNumber: issue.key,
+  summary: issue.fields?.summary ?? 'No summary',
+  description: convertDescriptionToText(issue.fields?.description) ?? 'N/A',
+  fixVersionName: issue.fields?.fixVersions?.map((fv) => fv.name).join(', ') ?? 'N/A',
+  fixVersionReleaseDate: issue.fields?.fixVersions?.map((fv) => fv.releaseDate).join(', ') ?? 'N/A',
+})
+
+/**
  * Fetches tickets by fix version and saves their data to files.
  * @param {AxiosInstance} client Configured Axios instance.
  * @param {string} fixVersion The Jira fix version.
@@ -227,11 +240,15 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
 
     const issues = await fetchTicketsByFixVersion(client, FIX_VERSION)
 
-    issues.forEach((issue) => {
-      const issueData = extractIssueData(issue)
+    for (const issue of issues) {
+      const issueData = extractIssueData(issue);
+      if (issueData.epic && issueData.epic !== 'N/A') {
+        const epicData = await fetchTicketById(client, issueData.epic);
+        issueData.epicTicket = extractEpicIssueData(epicData);
+      }
       saveIssueData(FIX_VERSION, issueData)
       console.log(`Saved ${issue.key}`)
-    })
+    }
   } catch (error) {
     console.error(error.message)
   }
@@ -254,7 +271,7 @@ export function sortTicketsByTeams(tickets) {
   const engineeringTeams = getTeamNamesFromConfig()
   const sortedTickets = []
   engineeringTeams.forEach((team) => {
-    const teamTickets = tickets.filter((ticket) => ticket.team === team)
+    const teamTickets = tickets.filter((ticket) => ticket.team?.trim() === team)
     const teamRelease = {
       name: team,
       tickets: teamTickets.map((ticket) => ({

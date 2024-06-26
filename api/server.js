@@ -70,12 +70,26 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
     await fetchTicketsAndSaveToFiles(client, fixVersion)
     const ticketFiles = readFileContents(fixVersion)
     let ticketsWithSummaries = []
+    let epicsWithSummaries = []
     for (const file of ticketFiles) {
+      const { epicTicket } = file;
       const copyAIResponse = await getCopyAISummary(
         JSON.stringify(file, null, 2),
         file.ticketNumber,
         fixVersion
       )
+      
+      // If epic releases with fix version, get summary of epic from copy ai
+      if (epicTicket?.fixVersionName === fixVersion) {
+        const epicCopyAIResponse = await getCopyAISummary(
+          JSON.stringify(epicTicket, null, 2),
+          epicTicket.ticketNumber,
+          fixVersion
+        )
+        const { summary: copyAIDescription, isCustomerFacing } = epicCopyAIResponse
+        epicTicket.summary = epicCopyAIResponse.summary
+        epicsWithSummaries.push({ ...epicTicket, copyAIDescription, isCustomerFacing })
+      }
       const { summary: copyAIDescription, isCustomerFacing } = copyAIResponse
       ticketsWithSummaries.push({ ...file, copyAIDescription, isCustomerFacing })
     }
@@ -86,7 +100,7 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
     const response = {
       title: `Summary for Release ${fixVersion}`,
       releaseDate: ticketsWithSummaries[0].fixVersionReleaseDate,
-      epics: [], // TODO
+      epics: epicsWithSummaries,
       teams: sortedTickets
     }
     console.log(response)
