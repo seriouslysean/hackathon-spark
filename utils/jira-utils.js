@@ -231,26 +231,27 @@ const extractEpicIssueData = (issue) => ({
  */
 export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
   try {
-    const FIX_VERSION = fixVersion
-    const dirPath = join('./tmp', fixVersion)
-    if (fs.existsSync(dirPath)) {
-      console.log(`Files already exist for ${fixVersion}`)
-      return
-    }
-
-    const issues = await fetchTicketsByFixVersion(client, FIX_VERSION)
-
-    for (const issue of issues) {
-      const issueData = extractIssueData(issue);
-      if (issueData.epic && issueData.epic !== 'N/A') {
-        const epicData = await fetchTicketById(client, issueData.epic);
-        issueData.epicTicket = extractEpicIssueData(epicData);
+    const dirPath = join('./tmp', fixVersion);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    } else {
+      const files = fs.readdirSync(dirPath);
+      if (files.length) {
+        console.log(`Files already exist for ${fixVersion}`);
+        return;
       }
-      saveIssueData(FIX_VERSION, issueData)
-      console.log(`Saved ${issue.key}`)
     }
+
+    const issues = await fetchTicketsByFixVersion(client, fixVersion);
+
+    issues.forEach(issue => {
+      const issueData = extractIssueData(issue);
+      const filePath = join(dirPath, `${issue.key}.json`);
+      fs.writeFileSync(filePath, JSON.stringify(issueData, null, 2));
+      console.log(`Saved ${issue.key}`);
+    });
   } catch (error) {
-    console.error(error.message)
+    console.error(error.message);
   }
 }
 

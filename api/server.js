@@ -1,4 +1,7 @@
 import express, { json } from 'express'
+import { existsSync } from 'fs';
+import { join } from 'path';
+import { generateEmailFile, saveEmailToFile } from '#utils/email-utils.js'
 import {
   getJiraAxiosClient,
   getJiraConfig,
@@ -110,3 +113,40 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
     res.status(500).send(error.message)
   }
 })
+
+app.post('/api/spark/generate-email-file', (req, res) => {
+  const { emailTitle, contentHtml, release } = req.body;
+
+  // Validate required fields
+  if (!emailTitle || !contentHtml || !release) {
+    return res.status(400).send('Missing required fields: emailTitle, contentHtml, release');
+  }
+
+  // Generate EML content without specifying "To" email address
+  const emlContent = generateEmailFile(emailTitle, contentHtml);
+
+  // Use the new utility to save the email file
+  saveEmailToFile(release, emlContent);
+
+  // Respond to indicate success without filename
+  res.send({ message: 'Email file generated successfully.' });
+});
+
+app.get('/api/spark/download-email-file/:release', (req, res) => {
+  const { release } = req.params;
+  const dirPath = join('./tmp', release);
+  const filePath = join(dirPath, 'email.eml');
+  const timestamp = Date.now();
+  const downloadFilename = `spark-email-${release}-${timestamp}.eml`;
+
+  if (existsSync(filePath)) {
+    res.download(filePath, downloadFilename, (err) => {
+      if (err) {
+        console.error(`Failed to download email: ${err.message}`);
+        res.status(500).send('Failed to download email.');
+      }
+    });
+  } else {
+    res.status(404).send('Email file not found.');
+  }
+});

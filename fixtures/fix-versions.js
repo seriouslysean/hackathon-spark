@@ -1,6 +1,6 @@
 export const MOCK_FIX_VERSIONS = [
   {
-    self: 'https://spark.mock/rest/api/3/version/10005',
+    self: 'https://spark.local/rest/api/3/version/10005',
     id: '10005',
     name: 'GoblinGrub 1.2.3',
     archived: false,
@@ -13,7 +13,7 @@ export const MOCK_FIX_VERSIONS = [
     projectId: 10505
   },
   {
-    self: 'https://spark.mock/rest/api/3/version/10004',
+    self: 'https://spark.local/rest/api/3/version/10004',
     id: '10004',
     name: 'GoblinGrub 1.2.2',
     archived: false,
@@ -23,7 +23,7 @@ export const MOCK_FIX_VERSIONS = [
     projectId: 10404
   },
   {
-    self: 'https://spark.mock/rest/api/3/version/10003',
+    self: 'https://spark.local/rest/api/3/version/10003',
     id: '10003',
     name: 'GoblinGrub 1.2.1',
     archived: false,
@@ -33,7 +33,7 @@ export const MOCK_FIX_VERSIONS = [
     projectId: 10303
   },
   {
-    self: 'https://spark.mock/rest/api/3/version/10002',
+    self: 'https://spark.local/rest/api/3/version/10002',
     id: '10002',
     name: 'GoblinGrub 1.2.0',
     archived: false,
@@ -43,7 +43,7 @@ export const MOCK_FIX_VERSIONS = [
     projectId: 10202
   },
   {
-    self: 'https://spark.mock/rest/api/3/version/10001',
+    self: 'https://spark.local/rest/api/3/version/10001',
     id: '10001',
     name: 'GoblinGrub 1.1.9',
     archived: false,
