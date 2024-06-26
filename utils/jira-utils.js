@@ -220,10 +220,8 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
   try {
     const FIX_VERSION = fixVersion
     const dirPath = join('./tmp', fixVersion)
-    const filePath = join(dirPath, 'UW-34288.json')
     if (fs.existsSync(dirPath)) {
       console.log(`Files already exist for ${fixVersion}`)
-      console.log(filePath, fs.existsSync(filePath))
       return
     }
 
