@@ -232,22 +232,27 @@ const extractEpicIssueData = (issue) => ({
  */
 export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
   try {
-    const FIX_VERSION = fixVersion
-    const dirPath = join('./tmp', fixVersion)
-    if (fs.existsSync(dirPath)) {
-      console.log(`Files already exist for ${fixVersion}`)
-      return
+    const dirPath = join('./tmp', fixVersion);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    } else {
+      const files = fs.readdirSync(dirPath);
+      if (files.length) {
+        console.log(`Files already exist for ${fixVersion}`);
+        return;
+      }
     }
 
-    const issues = await fetchTicketsByFixVersion(client, FIX_VERSION)
+    const issues = await fetchTicketsByFixVersion(client, fixVersion);
 
-    for (const issue of issues) {
+    issues.forEach(issue => {
       const issueData = extractIssueData(issue);
-      saveIssueData(FIX_VERSION, issueData)
-      console.log(`Saved ${issue.key}`)
-    }
+      const filePath = join(dirPath, `${issue.key}.json`);
+      fs.writeFileSync(filePath, JSON.stringify(issueData, null, 2));
+      console.log(`Saved ${issue.key}`);
+    });
   } catch (error) {
-    console.error(error.message)
+    console.error(error.message);
   }
 }
 

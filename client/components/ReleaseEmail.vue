@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useReleaseStore, GENERATE_RELEASE_NOTES } from '~stores/release'
 
 const releaseStore = useReleaseStore()
@@ -16,6 +16,14 @@ const props = defineProps({
 
 const hasError = ref(false)
 const releaseData = ref({})
+const emailContentRef = ref(null)
+
+const pageTitle = computed(() => {
+  if (!releaseData.value.title) {
+    return '';
+  }
+  return `🚀 Release Notes for ${releaseData.value.title}`;
+});
 
 onMounted(async () => {
   try {
@@ -25,6 +33,33 @@ onMounted(async () => {
     hasError.value = true
   }
 })
+
+const handleEmailDownloadClick = async () => {
+  if (!emailContentRef.value) {
+    console.error('Email content is not available.');
+    return;
+  }
+
+  const contentHtml = emailContentRef.value.innerHTML;
+
+  try {
+    const generateResponse = await fetch('/api/spark/generate-email-file', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ emailTitle: pageTitle.value, contentHtml, release: props.release }),
+    });
+
+    if (!generateResponse.ok) {
+      throw new Error(`HTTP error! status: ${generateResponse.status}`);
+    }
+
+    window.location.href = `/api/spark/download-email-file/${props.release}`;
+  } catch (error) {
+    console.error('Error generating or downloading the file:', error);
+  }
+};
 </script>
 
 <template>
@@ -33,9 +68,13 @@ onMounted(async () => {
       <p>Failed to fetch the release.</p>
     </div>
     <div v-else>
-      <h1>🚀 Release Notes for {{ releaseData.title }}</h1>
+      <h1>{{ pageTitle }}</h1>
 
-      <div class="email">
+      <div class="actions">
+        <button @click="handleEmailDownloadClick">Download Email File</button>
+      </div>
+
+      <div class="email" ref="emailContentRef">
           <div class="section">
             <p>Hello,</p>
             <p>Here are the latest release notes for {{ releaseData.title }}, releasing on {{releaseData.releaseDate}}.</p>
@@ -87,6 +126,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.actions {
+  text-align: center;
+  margin: 1em 0;
+}
+
 .ticket {
   margin-bottom: 1em;
 }
