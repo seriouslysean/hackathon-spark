@@ -40,6 +40,7 @@
   "private": true,
   "scripts": {
     "build": "vite build",
+    "clean": "rimraf tmp/*",
     "dev": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "format": "prettier --write '**/*.{vue,js,jsx,cjs,mjs}'",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
