@@ -196,6 +196,7 @@ export const convertDescriptionToText = (description) => {
  */
 const extractIssueData = (issue) => ({
   ticketNumber: issue.key,
+  type: issue.fields?.issuetype?.name ?? 'N/A',
   epic: issue.fields?.parent?.key ?? 'N/A',
   resolution: issue.fields?.resolution?.name ?? 'N/A',
   // issuelinks: convertIssueLinksToText(issue.fields?.issuelinks) ?? 0,
@@ -242,10 +243,6 @@ export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
 
     for (const issue of issues) {
       const issueData = extractIssueData(issue);
-      if (issueData.epic && issueData.epic !== 'N/A') {
-        const epicData = await fetchTicketById(client, issueData.epic);
-        issueData.epicTicket = extractEpicIssueData(epicData);
-      }
       saveIssueData(FIX_VERSION, issueData)
       console.log(`Saved ${issue.key}`)
     }

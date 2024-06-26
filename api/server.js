@@ -72,26 +72,18 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
     let ticketsWithSummaries = []
     let epicsWithSummaries = []
     for (const file of ticketFiles) {
-      const { epicTicket } = file;
       const copyAIResponse = await getCopyAISummary(
         JSON.stringify(file, null, 2),
         file.ticketNumber,
         fixVersion
       )
       
-      // If epic releases with fix version, get summary of epic from copy ai
-      if (epicTicket?.fixVersionName === fixVersion) {
-        const epicCopyAIResponse = await getCopyAISummary(
-          JSON.stringify(epicTicket, null, 2),
-          epicTicket.ticketNumber,
-          fixVersion
-        )
-        const { summary: copyAIDescription, isCustomerFacing } = epicCopyAIResponse
-        epicTicket.summary = epicCopyAIResponse.summary
-        epicsWithSummaries.push({ ...epicTicket, copyAIDescription, isCustomerFacing })
-      }
       const { summary: copyAIDescription, isCustomerFacing } = copyAIResponse
-      ticketsWithSummaries.push({ ...file, copyAIDescription, isCustomerFacing })
+      if (file.type === 'Epic') {
+        epicsWithSummaries.push({ ticket: file.ticketNumber, title: file.summary, summary: copyAIDescription, isCustomerFacing})
+      } else {
+        ticketsWithSummaries.push({ ...file, copyAIDescription, isCustomerFacing })
+      }
     }
 
     const sortedTickets = sortTicketsByTeams(ticketsWithSummaries)

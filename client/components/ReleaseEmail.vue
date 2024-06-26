@@ -44,9 +44,9 @@ onMounted(async () => {
           <div class="section">
             <h3>✨ Feature Releases and Highlights</h3>
             <ul>
-              <li>highlight 1</li>
-              <li>highlight 2</li>
-              <li>highlight 3</li>
+              <li v-for="epic in releaseData.epics" :key="epic.id">
+                {{ epic.summary }}
+              </li>
             </ul>
           </div>
 
