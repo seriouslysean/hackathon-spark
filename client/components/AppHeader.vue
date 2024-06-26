@@ -3,11 +3,9 @@ import { RouterLink } from 'vue-router'
 </script>
 
 <template>
-  <header>
-    <RouterLink to="/">
-      <img src="/assets/images/header.png" alt="" height="" width="100%" />
-    </RouterLink>
-  </header>
+    <header>
+        <img src="/assets/images/header.png" alt="" height="" width="100%" />
+    </header>
 </template>
 
 <style scoped>
