@@ -25,6 +25,26 @@ const pageTitle = computed(() => {
   return `🚀 Release Notes for ${releaseData.value.title}`;
 });
 
+const formattedReleaseDate = computed(() => {
+  const date = new Date(releaseData.value.releaseDate);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+});
+
+const adaptedTeams = computed(() => {
+  if (!releaseData.value.teams) {
+    return [];
+  }
+  return releaseData.value.teams.map(team => ({
+    name: team.name,
+    customerFacingTickets: team.tickets.filter(ticket => ticket.customerFacing),
+    nonCustomerFacingTickets: team.tickets.filter(ticket => !ticket.customerFacing),
+  }));
+})
+
 onMounted(async () => {
   try {
     releaseData.value = await releaseStore[GENERATE_RELEASE_NOTES](props.release)
@@ -78,7 +98,7 @@ const handleEmailDownloadClick = async () => {
       <div class="email" ref="emailContentRef">
           <div class="section">
             <p>Hello,</p>
-            <p>Here are the latest release notes for {{ releaseData.title }}, releasing on {{releaseData.releaseDate}}.</p>
+            <p>Here are the latest release notes for <strong>{{ releaseData.title }}</strong>, releasing on <strong>{{ formattedReleaseDate }}</strong>.</p>
           </div>
 
           <div class="section">
@@ -93,21 +113,18 @@ const handleEmailDownloadClick = async () => {
           <div class="section">
             <h3>🛠️ Bug Fixes and Improvements</h3>
 
-            <div v-for="(team, index) in releaseData.teams" :key="index" class="team">
+            <div v-for="(team, index) in adaptedTeams" :key="index" class="team">
               <h4>{{ team.name }}</h4>
               <!-- <h5>Customer Facing</h5> -->
               <ul>
-                <li v-for="ticket in team.tickets.filter((t) => t.customerFacing)" :key="ticket.ticket">
+                <li v-for="ticket in team.customerFacingTickets" :key="ticket.ticket">
                   {{ ticket.title }} - {{ ticket.summary }}
                 </li>
               </ul>
               <!-- <h5>Not Customer Facing</h5> -->
               <ul>
-                <li
-                  v-for="ticket in team.tickets.filter((t) => !t.customerFacing)"
-                  :key="ticket.ticket"
-                >
-                  {{ ticket.title }} - {{ ticket.summary }}
+                <li v-for="ticket in team.nonCustomerFacingTickets" :key="ticket.ticket">
+                  {{ ticket.title }} - {{ ticket.summary }}*
                 </li>
               </ul>
             </div>
@@ -129,6 +146,10 @@ const handleEmailDownloadClick = async () => {
 <style scoped>
 h1 {
   text-align: center;
+}
+
+strong {
+  font-weight: 500;
 }
 
 .email {
