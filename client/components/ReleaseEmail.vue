@@ -38,7 +38,7 @@ onMounted(async () => {
       <div class="email">
           <div class="section">
             <p>Hello,</p>
-            <p>Here are the latest release notes.</p>
+            <p>Here are the latest release notes for {{ releaseData.title }}, releasing on {{releaseData.releaseDate}}.</p>
           </div>
 
           <div class="section">

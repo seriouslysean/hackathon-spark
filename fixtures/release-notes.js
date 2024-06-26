@@ -1,6 +1,6 @@
 export const MOCK_RELEASE_NOTES = {
   title: 'GoblinGrub 1.2.3',
-  releaseDate: 'Nov 1, 2022',
+  releaseDate: '2024-07-06',
   // This will be the epics that were completed in the given release
   // We can check the parent of the tickets for this release, and see if:
   //   1. It has a type of epic
