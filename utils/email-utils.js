@@ -1,5 +1,6 @@
-import fs from 'fs';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { kebabCase } from '#utils/utils.js';
 
 import sanitizeHtml from 'sanitize-html';
 
@@ -78,15 +79,16 @@ ${fullHtml}
  * @param {string} emailContent The content of the email to be saved.
  */
 export function saveEmailToFile(release, emailContent) {
-    const dirPath = join('./tmp', release);
-    const filePath = join(dirPath, 'email.eml');
+    const releaseKebab = kebabCase(release);
+    const filePath = join('/tmp/emails', `${releaseKebab}.eml`);
 
     try {
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
+        const dirPath = join('/tmp/emails');
+        if (!existsSync(dirPath)) {
+            mkdirSync(dirPath, { recursive: true });
         }
 
-        fs.writeFileSync(filePath, emailContent);
+        writeFileSync(filePath, emailContent);
         console.log(`Email saved to ${filePath}`);
     } catch (error) {
         console.error(`Failed to save email: ${error.message}`);

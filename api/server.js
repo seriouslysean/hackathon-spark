@@ -1,6 +1,7 @@
 import express, { json } from 'express'
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { kebabCase } from '#utils/utils.js';
 import { generateEmailFile, saveEmailToFile } from '#utils/email-utils.js'
 import {
   getJiraAxiosClient,
@@ -80,10 +81,10 @@ app.get('/api/spark/generate-release-notes', async (req, res) => {
         file.ticketNumber,
         fixVersion
       )
-      
+
       const { summary: copyAIDescription, isCustomerFacing } = copyAIResponse
       if (file.type === 'Epic') {
-        epicsWithSummaries.push({ ticket: file.ticketNumber, title: file.summary, summary: copyAIDescription, isCustomerFacing})
+        epicsWithSummaries.push({ ticket: file.ticketNumber, title: file.summary, summary: copyAIDescription, isCustomerFacing })
       } else {
         ticketsWithSummaries.push({ ...file, copyAIDescription, isCustomerFacing })
       }
@@ -126,10 +127,10 @@ app.post('/api/spark/generate-email-file', (req, res) => {
 
 app.get('/api/spark/download-email-file/:release', (req, res) => {
   const { release } = req.params;
-  const dirPath = join('./tmp', release);
-  const filePath = join(dirPath, 'email.eml');
+  const releaseKebab = kebabCase(release); // Convert release to kebab-case
+  const filePath = join('/tmp/emails', `${releaseKebab}.eml`); // Updated path
   const timestamp = Date.now();
-  const downloadFilename = `spark-email-${release}-${timestamp}.eml`;
+  const downloadFilename = `spark-email-${releaseKebab}-${timestamp}.eml`; // Use kebab-case in filename
 
   if (existsSync(filePath)) {
     res.download(filePath, downloadFilename, (err) => {

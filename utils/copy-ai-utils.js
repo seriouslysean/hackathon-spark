@@ -1,5 +1,5 @@
 import axios from 'axios'
-import fs from 'fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path'
 
 /**
@@ -64,9 +64,19 @@ export async function getWorkflowRun(client, runId) {
  * @returns {string} The contents of the file as a string.
  */
 export function readIssueData(filePath) {
-  const fileContents = fs.readFileSync(filePath, 'utf8')
-  const parsedData = JSON.parse(fileContents)
-  return parsedData
+  if (!existsSync(filePath)) {
+    console.error(`File does not exist: ${filePath}`);
+    return null;
+  }
+
+  try {
+    const fileContents = readFileSync(filePath, 'utf8');
+    const parsedData = JSON.parse(fileContents);
+    return parsedData;
+  } catch (error) {
+    console.error(`Error parsing file ${filePath}:`, error);
+    return null;
+  }
 }
 
 /**
@@ -76,13 +86,17 @@ export function readIssueData(filePath) {
  * @param {object} workflowData The issue data to save.
  */
 export function saveWorkflow(fixVersion, ticketNumber, workflowData) {
-  const dirPath = join('./tmp/workflows', fixVersion)
-  const filePath = join(dirPath, `${ticketNumber}--workflow.json`)
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true })
+  const dirPath = join('./tmp/workflows', fixVersion);
+  const filePath = join(dirPath, `${ticketNumber}--workflow.json`);
+  if (!existsSync(dirPath)) {
+    mkdirSync(dirPath, { recursive: true });
   }
 
-  fs.writeFileSync(filePath, workflowData + '\n\n')
+  try {
+    writeFileSync(filePath, JSON.stringify(workflowData, null, 2) + '\n\n');
+  } catch (error) {
+    console.error(`Error saving workflow to ${filePath}:`, error);
+  }
 }
 
 /**
@@ -120,7 +134,7 @@ export function readFileContents(fixVersion) {
   console.log('getting file contents from:', directoryPath)
 
   try {
-    const files = fs.readdirSync(directoryPath)
+    const files = readdirSync(directoryPath)
     const contentsArray = []
     for (const file of files) {
       const filePath = join(directoryPath, file)
@@ -146,7 +160,7 @@ export async function getCopyAISummary(prompt, ticketNumber, fixVersion) {
     const directoryPath = join('./tmp/workflows', fixVersion)
     const filePath = join(directoryPath, `${ticketNumber}--workflow.json`)
 
-    if (fs.existsSync(filePath)) {
+    if (existsSync(filePath)) {
       console.log(`Workflow file already exist for ${ticketNumber}`)
       return readIssueData(filePath)
     }
@@ -161,6 +175,7 @@ export async function getCopyAISummary(prompt, ticketNumber, fixVersion) {
     console.log(`Started workflow run with ID: ${runId}`)
 
     const statusRes = await pollWorkflowStatus(client, runId)
+    console.log('Workflow status response:', JSON.stringify(statusRes, null, 2));
 
     saveWorkflow(
       fixVersion,

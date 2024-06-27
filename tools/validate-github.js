@@ -26,7 +26,7 @@ async function validatePAT(client) {
 }
 
 // Example usage with environment variables
-;(async () => {
+(async () => {
   try {
     const token = getGitHubConfig()
     const client = getGitHubClient(token)

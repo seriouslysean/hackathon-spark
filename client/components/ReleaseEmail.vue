@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useReleaseStore, GENERATE_RELEASE_NOTES } from '~stores/release'
 
 const releaseStore = useReleaseStore()
@@ -8,9 +8,7 @@ const props = defineProps({
   release: {
     type: String,
     required: true,
-    validator: function (value) {
-      return value.trim().length > 0
-    }
+    validator: (value) => value.trim().length > 0
   }
 })
 
@@ -18,41 +16,32 @@ const hasError = ref(false)
 const releaseData = ref({})
 const emailContentRef = ref(null)
 
-const pageTitle = computed(() => {
-  if (!releaseData.value.title) {
-    return '';
-  }
-  return `🚀 Release Notes for ${releaseData.value.title}`;
-});
+// Fetch release data asynchronously on component setup
+try {
+  releaseData.value = await releaseStore[GENERATE_RELEASE_NOTES](props.release)
+} catch (error) {
+  console.error('Error generating release notes', error)
+  hasError.value = true
+}
+
+const pageTitle = computed(() => `🚀 Release Notes for ${releaseData.value.title || ''}`);
 
 const formattedReleaseDate = computed(() => {
   const date = new Date(releaseData.value.releaseDate);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 });
 
-const adaptedTeams = computed(() => {
-  if (!releaseData.value.teams) {
-    return [];
-  }
-  return releaseData.value.teams.map(team => ({
-    name: team.name,
-    customerFacingTickets: team.tickets.filter(ticket => ticket.customerFacing),
-    nonCustomerFacingTickets: team.tickets.filter(ticket => !ticket.customerFacing),
-  }));
-})
+const adaptedEpics = computed(() => releaseData.value.epics.map((epic, index) => ({
+  ...epic,
+  key: `${index}-${epic.ticket}`
+})));
 
-onMounted(async () => {
-  try {
-    releaseData.value = await releaseStore[GENERATE_RELEASE_NOTES](props.release)
-  } catch (error) {
-    console.error('Error generating release notes', error)
-    hasError.value = true
-  }
-})
+const adaptedTeams = computed(() => releaseData.value.teams.map((team, index) => ({
+  ...team,
+  key: `${index}-${team.name}-${team.tickets.length}`,
+  customerFacingTickets: team.tickets.filter(t => t.customerFacing),
+  nonCustomerFacingTickets: team.tickets.filter(t => !t.customerFacing)
+})));
 
 const handleEmailDownloadClick = async () => {
   if (!emailContentRef.value) {
@@ -65,9 +54,7 @@ const handleEmailDownloadClick = async () => {
   try {
     const generateResponse = await fetch('/api/spark/generate-email-file', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ emailTitle: pageTitle.value, contentHtml, release: props.release }),
     });
 
@@ -104,7 +91,7 @@ const handleEmailDownloadClick = async () => {
           <div class="section">
             <h3>✨ Feature Releases and Highlights</h3>
             <ul>
-              <li v-for="epic in releaseData.epics" :key="epic.id">
+              <li v-for="epic in adaptedEpics" :key="epic.key">
                 {{ epic.summary }}
               </li>
             </ul>
@@ -113,19 +100,20 @@ const handleEmailDownloadClick = async () => {
           <div class="section">
             <h3>🛠️ Bug Fixes and Improvements</h3>
 
-            <div v-for="(team, index) in adaptedTeams" :key="index" class="team">
+            <div v-for="team in adaptedTeams" :key="team.key" class="team">
               <h4>{{ team.name }}</h4>
-              <!-- <h5>Customer Facing</h5> -->
               <ul>
-                <li v-for="ticket in team.customerFacingTickets" :key="ticket.ticket">
-                  {{ ticket.summary }}
-                </li>
-              </ul>
-              <!-- <h5>Not Customer Facing</h5> -->
-              <ul>
-                <li v-for="ticket in team.nonCustomerFacingTickets" :key="ticket.ticket">
-                  {{ ticket.summary }}*
-                </li>
+                <template v-if="team.customerFacingTickets.length || team.nonCustomerFacingTickets.length">
+                  <!-- Customer Facing -->
+                  <li v-for="ticket in team.customerFacingTickets" :key="ticket.ticket">
+                    {{ ticket.summary }}
+                  </li>
+                  <!-- Not Customer Facing -->
+                  <li v-for="ticket in team.nonCustomerFacingTickets" :key="ticket.ticket">
+                    {{ ticket.summary }}*
+                  </li>
+                </template>
+                <li v-else>No tickets released</li>
               </ul>
             </div>
           </div>

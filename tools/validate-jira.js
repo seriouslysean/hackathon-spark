@@ -30,7 +30,7 @@ async function validatePAT(client) {
 }
 
 // Example usage with environment variables
-;(async () => {
+(async () => {
   try {
     const { email, token, domain } = getJiraConfig()
     const client = getJiraAxiosClient(email, token, domain)

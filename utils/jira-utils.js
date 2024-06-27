@@ -1,5 +1,5 @@
 import axios from 'axios'
-import fs from 'fs'
+import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 /**
@@ -140,12 +140,12 @@ export function saveIssueData(fixVersion, issueData) {
   const dirPath = join('./tmp', fixVersion)
   const filePath = join(dirPath, `${issueData.ticketNumber}.json`)
 
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true })
+  if (!existsSync(dirPath)) {
+    mkdirSync(dirPath, { recursive: true })
   }
   const jsonIssueData = JSON.stringify(issueData, null, 2)
 
-  fs.writeFileSync(filePath, jsonIssueData + '\n\n')
+  writeFileSync(filePath, jsonIssueData + '\n\n')
 }
 
 /**
@@ -233,24 +233,28 @@ const extractEpicIssueData = (issue) => ({
 export async function fetchTicketsAndSaveToFiles(client, fixVersion) {
   try {
     const dirPath = join('./tmp', fixVersion);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+    // Check if directory exists, create if it doesn't
+    if (!existsSync(dirPath)) {
+      mkdirSync(dirPath, { recursive: true });
     } else {
-      const files = fs.readdirSync(dirPath);
-      if (files.length) {
-        console.log(`Files already exist for ${fixVersion}`);
-        return;
-      }
+      console.log(`Files already exist for ${fixVersion}`);
+      return;
     }
 
     const issues = await fetchTicketsByFixVersion(client, fixVersion);
 
-    issues.forEach(issue => {
+    for (const issue of issues) {
       const issueData = extractIssueData(issue);
-      const filePath = join(dirPath, `${issue.key}.json`);
-      fs.writeFileSync(filePath, JSON.stringify(issueData, null, 2));
+      // Fetch and attach epic data if applicable
+      if (issueData.epic && issueData.epic !== 'N/A') {
+        const epicData = await fetchTicketById(client, issueData.epic);
+        issueData.epicTicket = extractEpicIssueData(epicData);
+      }
+      // Save issue data, abstracting the file saving logic
+      const filePath = join(dirPath, `${issueData.key}.json`);
+      writeFileSync(filePath, JSON.stringify(issueData, null, 2));
       console.log(`Saved ${issue.key}`);
-    });
+    }
   } catch (error) {
     console.error(error.message);
   }

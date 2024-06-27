@@ -75,7 +75,7 @@ async function getPRsMergedBetweenTags(owner, repo, baseTag, headTag) {
   }
 }
 
-;(async () => {
+(async () => {
   const { GITHUB_OWNER, GITHUB_REPO } = process.env
   const { currentVersion, previousVersion } = argv
 
