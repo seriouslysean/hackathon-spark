@@ -6,23 +6,19 @@ URBN 2024 Hackathon entry. **Summarized Project Automation and Reporting Kit**, 
 
 ## Table of Contents
 
-- [Client](#client)
-- [Server](#server)
+- [Local Setup](#local-setup)
 - [Tools](#tools)
-  - [GitHub PAT Setup](./github-pat.md)
-  - [JIRA PAT Setup](./jira-pat.md)
+- [PAT Setup](#pat-setup)
 
-## Client
+## Local Setup
 
-For details on setting up and developing the client application, see [Client Setup](./client-setup.md).
-
-## Server
-
-TBD
+For details on setting up and developing the client application, see [Local Setup](./local-setup.md).
 
 ## Tools
 
-### PAT Setup
+For a comprehensive list of the available tools, see [Tools](./tools.md).
+
+## PAT Setup
 
 For instructions on creating and validating your GitHub Personal Access Token, see [GitHub PAT Setup](./github-pat.md).
 
