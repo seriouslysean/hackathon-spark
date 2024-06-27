@@ -1,6 +1,6 @@
 {
   "name": "hackathon-spark",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "dependencies": {
     "@octokit/core": "^6.1.2",
     "axios": "^1.7.2",
