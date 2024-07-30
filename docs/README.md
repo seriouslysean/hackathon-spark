@@ -2,7 +2,7 @@
 
 # S.P.A.R.K.
 
-URBN 2024 Hackathon entry. **Summarized Project Automation and Reporting Kit**, or S.P.A.R.K. for short, will automatically generate release sumary emails, broken down by each team.
+URBN 2024 Hackathon entry. **Summarized Project Automation and Reporting Kit**, or S.P.A.R.K. for short, will automatically generate release summary emails, broken down by each team.
 
 ## Table of Contents
 
